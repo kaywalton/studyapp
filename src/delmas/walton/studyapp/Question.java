@@ -1,4 +1,4 @@
-package src.delmas.walton.studyapp;
+package delmas.walton.studyapp;
 
 public class Question {
 
