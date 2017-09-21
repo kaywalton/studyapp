@@ -10,11 +10,29 @@ public class ChoiceQuestion extends Question
 {
    private ArrayList<String> choices = new ArrayList<String>() ;
    private String correctChoice;
+   private boolean canBeShuffled;
 
    /**
     * construct a question with choices object
     */
    
+   
+   /**
+    * Sets the shuffle status on a question, allowing for the choices to be shuffled.
+    * @param yesORno
+    */
+   public void setShuffleStatus(boolean yesORno)
+   {
+      canBeShuffled = yesORno;
+   }
+   /**
+    * Returns the status of a question: can it be shuffled or not.
+    * @return true if it can. false if it can't.
+    */
+   public boolean getShuffleStatus()
+   {
+      return canBeShuffled;
+   }
    /**
     * Stores a choice and whether it is correct
     * @param newChoice choice to be added
@@ -34,13 +52,15 @@ public class ChoiceQuestion extends Question
    }
    /**
     * Displays the question and all added choices
+    * @return a formatted string with the choice options
     */
-   public void displayQuestionChoices()
+   public String displayQuestion()
    {
-      
+      String choiceString = "";
       for (int i = 0; i < choices.size(); i++) 
       {
-      System.out.print(i + ": " + choices.get(i) + "\n");
+      choiceString = choiceString + i + ": " + choices.get(i) + "\n";
       }
+      return choiceString;
    }
 }
