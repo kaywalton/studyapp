@@ -4,7 +4,8 @@ import java.util.ArrayList;
  * Creates a multiple choice question and prepares a formatted string with 
  * the question and choice options. Also includes the correct answer for verifying.
  * @author Kayla Walton
- *
+ * Created on 9/18
+ * Edited by  Kayla Walton    on 9/21 
  */
 public class ChoiceQuestion extends Question
 {
