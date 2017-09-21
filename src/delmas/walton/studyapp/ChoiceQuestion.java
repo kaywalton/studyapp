@@ -4,8 +4,7 @@ import java.util.ArrayList;
  * Creates a multiple choice question and prepares a formatted string with 
  * the question and choice options. Also includes the correct answer for verifying.
  * @author Kayla Walton
- * Created by:  Kayla on 9/15
- * Edited by:           on 
+ *
  */
 public class ChoiceQuestion extends Question
 {
@@ -18,8 +17,8 @@ public class ChoiceQuestion extends Question
     */
    
    public ChoiceQuestion(String question, String rightAnswer, boolean isShuffleable) {
-   super(question, rightAnswer);
-   this.shuffleable = isShuffleable;
+	super(question, rightAnswer);
+	this.shuffleable = isShuffleable;
    }
 /**
     * Stores a choice and whether it is correct
@@ -41,12 +40,12 @@ public class ChoiceQuestion extends Question
    /**
     * Displays the question and all added choices
     */
-   public String displayQuestionChoices()
+   public void displayQuestionChoices()
    {
-      String choiceDisplays = "";
+      
       for (int i = 0; i < choices.size(); i++) 
       {
-      choiceDisplays = choiceDisplays + i + ": " + choices.get(i) + "\n";
+      System.out.print(i + ": " + choices.get(i) + "\n");
       }
-      return choiceDisplays;
    }
+}
