@@ -61,7 +61,7 @@ public class Question {
 	 */
 	public boolean checkAnswer(String response) {
 		// Compare the user's response with the stored answer.
-		boolean check =  this.answer.equals(response);
+		boolean check =  this.answer.toLowerCase().equals(response.toLowerCase());
 		
 		// Update the knownFlag
 		if (check) {this.knownFlag ++;}
