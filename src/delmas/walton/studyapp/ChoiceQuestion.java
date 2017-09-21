@@ -41,11 +41,12 @@ public class ChoiceQuestion extends Question
    /**
     * Displays the question and all added choices
     */
-   public void displayQuestionChoices()
+   public String displayQuestionChoices()
    {
-      
+      String choiceDisplays = "";
       for (int i = 0; i < choices.size(); i++) 
       {
-      System.out.print(i + ": " + choices.get(i) + "\n");
+      choiceDisplays = choiceDisplays + i + ": " + choices.get(i) + "\n";
       }
+      return choiceDisplays;
    }
