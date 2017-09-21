@@ -41,4 +41,12 @@ public class ChoiceQuestion extends Question
       System.out.print(i + ": " + choices.get(i) + "\n");
       }
    }
+   
+   /**
+    * Return only the prompt of the question
+    * @return : prompt of the question
+    */
+   public String getPrompt() {
+	   return super.displayQuestion();
+   }
 }

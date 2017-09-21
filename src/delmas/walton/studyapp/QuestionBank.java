@@ -7,21 +7,19 @@ package delmas.walton.studyapp;
  *
  */
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class QuestionBank {
-	private int numberOfQuestions;
 	private ArrayList<ChoiceQuestion> allQuestions;
-	private String fileName;
 	
 	/**
 	 * Constructor with the name of the file
 	 * If the file does not exists, creates it
 	 * @param newFileName the name of the file where the questions are stored
 	 */
-	public QuestionBank(String newFileName) {
-		readInBank();
-	}
+
 	 /**
 	  * Adds a new question to the list of question saved in the bank
 	  * @param rightAnswer : the right answer to the question
@@ -30,7 +28,7 @@ public class QuestionBank {
 	  * @param isShuffleable : can the possible answers the shuffled
 	  * @return : true if the question was properly added
 	  */
-	public void createNewQuestion(String rightAnswer, ArrayList<String> possibleAnswers, String question, boolean isShuffleable ) {
+	public void addQuestion(String rightAnswer, ArrayList<String> possibleAnswers, String question, boolean isShuffleable ) {
 		// Create a new question
 		ChoiceQuestion newQ = new ChoiceQuestion(question, rightAnswer, isShuffleable);
 		boolean flag = false;
@@ -45,10 +43,23 @@ public class QuestionBank {
 	
 	/**
 	 * Remove a question from the list of question in the bank
+	 * @param questionPrompt : the prompt from the question to delete
 	 * @return : true if the question was found and removed
 	 */
-	public boolean removeQuestion() {
-		return false;
+	public boolean removeQuestion(String questionPrompt) {
+		boolean returnValue = false;
+		// Go through the list of question
+		for(int i = 0; i < this.allQuestions.size(); i++) {
+			ChoiceQuestion questionToRemove = this.allQuestions.get(i);
+			// If the prompt matches
+			if (questionToRemove.getPrompt().equals(questionPrompt)) {
+				// Update return value and delete the question from the list
+				returnValue = true;
+				this.allQuestions.remove(questionToRemove);
+			}
+		}
+		
+		return returnValue;
 	}
 	
 	
@@ -58,24 +69,26 @@ public class QuestionBank {
 	 * @return : a random question
 	 */
 	public Question getRandomQuestion() {
-		return new Question();
+		final double MASTERED_RATE = 25; 	// 25 out of 100;
+		boolean found = false;
+		ChoiceQuestion question = null;
+		
+		// Repeat until a question is found
+		while (!found) {
+			// Get a random question
+			Random randomGenerator = new Random(Instant.now().getNano());
+			int randomIndex =randomGenerator.nextInt(this.allQuestions.size() -1);
+			question = this.allQuestions.get(randomIndex);
+			
+			// If the question at that index is mastered, returns it only MASTERED_RATE times
+			if (question.getKnownFlag()) {
+				int chance = randomGenerator.nextInt(100);
+				if (chance < MASTERED_RATE) {found = true;}
+				// Else gets another question
+			}
+		}
+		return question;
 	}
 	
-	/**
-	 * Write the sate of the bank of questions to the file.
-	 * Overwrite the previous file
-	 * this action is irreversible
-	 * @return : true if the file was properly overwritten
-	 */
-	public boolean updateFile() {
-		return false;
-	}
-	
-	/**
-	 * used by the constructor to load the content of a file into the bank
-	 * @return : true if the file was correctly read
-	 */
-	private boolean readInBank() {
-		return false;
-	}
+
 }
