@@ -4,7 +4,7 @@ package delmas.walton.studyapp;
  * Class holding the content of a question, able to check if the answer provided is the right one.
  * @author Isabelle Delmas
  * Created on: 09-20-2017
- * Edited on:				by
+ * Edited on: 09-21-2017			by Isabelle Delmas			Reason : Implemented content of member functions
  *
  */
 public class Question {

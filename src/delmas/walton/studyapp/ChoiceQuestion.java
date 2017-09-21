@@ -4,37 +4,24 @@ import java.util.ArrayList;
  * Creates a multiple choice question and prepares a formatted string with 
  * the question and choice options. Also includes the correct answer for verifying.
  * @author Kayla Walton
- * Created on 9/18
- * Edited by  Kayla Walton    on 9/21 
+ * Created by:  Kayla on 9/15
+ * Edited by:           on 
  */
 public class ChoiceQuestion extends Question
 {
    private ArrayList<String> choices = new ArrayList<String>() ;
    private String correctChoice;
-   private boolean canBeShuffled;
+   private boolean shuffleable;
 
    /**
     * construct a question with choices object
     */
    
-   
-   /**
-    * Sets the shuffle status on a question, allowing for the choices to be shuffled.
-    * @param yesORno
-    */
-   public void setShuffleStatus(boolean yesORno)
-   {
-      canBeShuffled = yesORno;
+   public ChoiceQuestion(String question, String rightAnswer, boolean isShuffleable) {
+   super(question, rightAnswer);
+   this.shuffleable = isShuffleable;
    }
-   /**
-    * Returns the status of a question: can it be shuffled or not.
-    * @return true if it can. false if it can't.
-    */
-   public boolean getShuffleStatus()
-   {
-      return canBeShuffled;
-   }
-   /**
+/**
     * Stores a choice and whether it is correct
     * @param newChoice choice to be added
     * @param truthValue is it correct?
@@ -53,15 +40,12 @@ public class ChoiceQuestion extends Question
    }
    /**
     * Displays the question and all added choices
-    * @return a formatted string with the choice options
     */
-   public String displayQuestion()
+   public void displayQuestionChoices()
    {
-      String choiceString = "";
+      
       for (int i = 0; i < choices.size(); i++) 
       {
-      choiceString = choiceString + i + ": " + choices.get(i) + "\n";
+      System.out.print(i + ": " + choices.get(i) + "\n");
       }
-      return choiceString;
    }
-}
