@@ -1,4 +1,11 @@
 package delmas.walton.studyapp;
+/**
+ * Class holding the content of a Bank of Question.
+ * @author Isabelle Delmas
+ * Created on: 09-21-2017
+ * Edited on:				by
+ *
+ */
 
 import java.util.ArrayList;
 
@@ -9,10 +16,11 @@ public class QuestionBank {
 	
 	/**
 	 * Constructor with the name of the file
+	 * If the file does not exists, creates it
 	 * @param newFileName the name of the file where the questions are stored
 	 */
 	public QuestionBank(String newFileName) {
-		
+		readInBank();
 	}
 	 /**
 	  * Adds a new question to the list of question saved in the bank
@@ -22,8 +30,17 @@ public class QuestionBank {
 	  * @param isShuffleable : can the possible answers the shuffled
 	  * @return : true if the question was properly added
 	  */
-	public boolean createNewQuestion(String rightAnswer, ArrayList<String> possibleAnswers, String question, boolean isShuffleable ) {
-		return false;
+	public void createNewQuestion(String rightAnswer, ArrayList<String> possibleAnswers, String question, boolean isShuffleable ) {
+		// Create a new question
+		ChoiceQuestion newQ = new ChoiceQuestion(question, rightAnswer, isShuffleable);
+		boolean flag = false;
+		// Add all the choices and checks if it is the right answer
+		for (int i = 0; i < possibleAnswers.size(); i++) {
+			flag = (rightAnswer == possibleAnswers.get(i));
+			newQ.addChoice(possibleAnswers.get(i), flag);
+		}
+		// Add the new question to the list
+		allQuestions.add(newQ);
 	}
 	
 	/**

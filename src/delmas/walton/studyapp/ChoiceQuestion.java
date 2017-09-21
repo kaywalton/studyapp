@@ -4,12 +4,17 @@ public class ChoiceQuestion extends Question
 {
    private ArrayList<String> choices = new ArrayList<String>() ;
    private String correctChoice;
+   private boolean shuffleable;
 
    /**
     * construct a question with choices object
     */
    
-   /**
+   public ChoiceQuestion(String question, String rightAnswer, boolean isShuffleable) {
+	super(question, rightAnswer);
+	this.shuffleable = isShuffleable;
+   }
+/**
     * Stores a choice and whether it is correct
     * @param newChoice choice to be added
     * @param truthValue is it correct?
