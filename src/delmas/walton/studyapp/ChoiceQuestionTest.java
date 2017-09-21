@@ -15,7 +15,6 @@ public class ChoiceQuestionTest
       ChoiceQuestion firstQ = new ChoiceQuestion("Who is the Dark Knight?", "Batman", true);
       //test to see if display is not null
       assertNotNull(firstQ.displayQuestion());
-      assertNotNull(firstQ.displayQuestionChoices());
       //check if first correct answer stored properly
       assertEquals(firstQ.checkAnswer("Batman"), true);
       //second test for multiple choice insertion
@@ -30,8 +29,8 @@ public class ChoiceQuestionTest
       assertEquals("Choice check", "Vera Wang", secondQ.getChoices().get(1));
       assertEquals("Second choice", "Barbara Gordon", secondQ.getChoices().get(2));
       assertEquals("Third choice", "Sarah Palin", secondQ.getChoices().get(3));
-      //verify whole list of answers will display
       assertNotNull(secondQ.displayQuestionChoices());
+     
    }
   
 

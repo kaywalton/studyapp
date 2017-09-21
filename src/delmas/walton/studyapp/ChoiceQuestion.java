@@ -1,5 +1,7 @@
 package delmas.walton.studyapp;
+
 import java.util.ArrayList;
+
 /**
  * Creates a multiple choice question and prepares a formatted string with 
  * the question and choice options. Also includes the correct answer for verifying.
@@ -9,7 +11,7 @@ import java.util.ArrayList;
 public class ChoiceQuestion extends Question
 {
    private ArrayList<String> choices = new ArrayList<String>() ;
-   private String correctChoice;
+   //private String correctChoice;
    private boolean shuffleable;
 
    /**
@@ -18,6 +20,7 @@ public class ChoiceQuestion extends Question
    
    public ChoiceQuestion(String question, String rightAnswer, boolean isShuffleable) {
 	super(question, rightAnswer);
+	this.choices.add(rightAnswer);
 	this.shuffleable = isShuffleable;
    }
 /**
@@ -29,7 +32,7 @@ public class ChoiceQuestion extends Question
    {
       if (truthValue)   //if it is the correct value, then mark it and add to list
       {
-         correctChoice = newChoice;
+         
          choices.add(newChoice);
       }
       else
@@ -38,14 +41,23 @@ public class ChoiceQuestion extends Question
       }
    }
    /**
+    * Gather all of the available choices
+    * @return returns the array list of current choices
+    */
+   public ArrayList<String> getChoices()
+   {
+      return choices;
+   }
+   /**
     * Displays the question and all added choices
     */
-   public void displayQuestionChoices()
+    public String displayQuestionChoices()
    {
-      
+      String displayChoices = "";
       for (int i = 0; i < choices.size(); i++) 
       {
-      System.out.print(i + ": " + choices.get(i) + "\n");
+      displayChoices = displayChoices + i + ": " + choices.get(i) + "\n";
       }
+      return displayChoices;
    }
 }
