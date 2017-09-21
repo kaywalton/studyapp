@@ -1,5 +1,11 @@
 package delmas.walton.studyapp;
 import java.util.ArrayList;
+/**
+ * Creates a multiple choice question and prepares a formatted string with 
+ * the question and choice options. Also includes the correct answer for verifying.
+ * @author Kayla Walton
+ *
+ */
 public class ChoiceQuestion extends Question
 {
    private ArrayList<String> choices = new ArrayList<String>() ;
@@ -31,6 +37,7 @@ public class ChoiceQuestion extends Question
     */
    public void displayQuestionChoices()
    {
+      
       for (int i = 0; i < choices.size(); i++) 
       {
       System.out.print(i + ": " + choices.get(i) + "\n");
