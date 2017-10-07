@@ -39,14 +39,14 @@ public class ListofBanks implements Serializable{
 	public QuestionBank getBank(String bankName) {
 		QuestionBank bank = null;
 		for(int i = 0; i < this.list.size(); i++) {
-			if(this.list.get(i).getName().equals(bankName)) {
+			if(this.list.get(i).getName().toUpperCase().equals(bankName.toUpperCase())) {
 				bank = this.list.get(i);
 			}
 		}
 		return bank;
 	}
 	
-	public void setBank(QuestionBank bank) {
+	public void addBank(QuestionBank bank) {
 		if(bank != null) {
 			this.list.add(bank);
 		}
