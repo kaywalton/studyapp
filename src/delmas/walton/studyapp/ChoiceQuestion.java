@@ -1,5 +1,6 @@
 package delmas.walton.studyapp;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -8,9 +9,13 @@ import java.util.ArrayList;
  * @author Kayla Walton
  *
  */
-public class ChoiceQuestion extends Question
+public class ChoiceQuestion extends Question implements Serializable
 {
-   private ArrayList<String> choices = new ArrayList<String>() ;
+   /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2393515154114642504L;
+	private ArrayList<String> choices = new ArrayList<String>() ;
    //private String correctChoice;
    private boolean shuffleable;
 

@@ -1,5 +1,7 @@
 package delmas.walton.studyapp;
 
+import java.io.Serializable;
+
 /**
  * Class holding the content of a question, able to check if the answer provided is the right one.
  * @author Isabelle Delmas
@@ -7,8 +9,13 @@ package delmas.walton.studyapp;
  * Edited on: 09-21-2017			by Isabelle Delmas			Reason : Implemented content of member functions
  *
  */
-public class Question {
+public class Question implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3897957486081603794L;
+
 	private String text;
 	private String answer;
 	private int knownFlag;

@@ -7,38 +7,59 @@ package delmas.walton.studyapp;
  *
  */
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class QuestionBank {
+public class QuestionBank implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4401620113342983294L;
 	private ArrayList<ChoiceQuestion> allQuestions;
+	private String name;
 	
 	/**
-	 * Constructor with the name of the file
-	 * If the file does not exists, creates it
-	 * @param newFileName the name of the file where the questions are stored
+	 * Default constructor
 	 */
+	public QuestionBank() {
+		allQuestions = new ArrayList<ChoiceQuestion>();
+	}
+	
+	/**
+	 * Constructor that takes the name of the bank
+	 * @param newName : name of the bank
+	 */
+	public QuestionBank(String newName) {
+		this.setName(newName);
+	}
+	
+	/**
+	 * Return the name of the bank
+	 * @return name of the bank
+	 */
+	public String getName() {
+		return this.name;
+	}
+	
+	/**
+	 * Set the name of the bank
+	 * @param newName : name of the bank
+	 */
+	public void setName(String newName) {
+		this.name = newName;
+	}
 
 	 /**
 	  * Adds a new question to the list of question saved in the bank
-	  * @param rightAnswer : the right answer to the question
-	  * @param possibleAnswers : all the possible answers
-	  * @param question : the prompt to the user
-	  * @param isShuffleable : can the possible answers the shuffled
-	  * @return : true if the question was properly added
+	  * @param newQuestion : question to add to the bank
 	  */
-	public void addQuestion(String rightAnswer, ArrayList<String> possibleAnswers, String question, boolean isShuffleable ) {
-		// Create a new question
-		ChoiceQuestion newQ = new ChoiceQuestion(question, rightAnswer, isShuffleable);
-		boolean flag = false;
-		// Add all the choices and checks if it is the right answer
-		for (int i = 0; i < possibleAnswers.size(); i++) {
-			flag = (rightAnswer == possibleAnswers.get(i));
-			newQ.addChoice(possibleAnswers.get(i), flag);
-		}
+	public void addQuestion(ChoiceQuestion newQuestion) {
+
 		// Add the new question to the list
-		allQuestions.add(newQ);
+		allQuestions.add(newQuestion);
 	}
 	
 	/**
@@ -68,7 +89,7 @@ public class QuestionBank {
 	 * Higher probability to get a non-mastered question
 	 * @return : a random question
 	 */
-	public Question getRandomQuestion() {
+	public ChoiceQuestion getRandomQuestion() {
 		final double MASTERED_RATE = 25; 	// 25 out of 100;
 		boolean found = false;
 		ChoiceQuestion question = null;
@@ -77,7 +98,7 @@ public class QuestionBank {
 		while (!found) {
 			// Get a random question
 			Random randomGenerator = new Random(Instant.now().getNano());
-			int randomIndex =randomGenerator.nextInt(this.allQuestions.size() -1);
+			int randomIndex = randomGenerator.nextInt(this.allQuestions.size());
 			question = this.allQuestions.get(randomIndex);
 			
 			// If the question at that index is mastered, returns it only MASTERED_RATE times
@@ -88,6 +109,14 @@ public class QuestionBank {
 			}
 		}
 		return question;
+	}
+	
+	/**
+	 * Get the number of questions stored in the bank
+	 * @return number of questions
+	 */
+	public int numberOfQuestions() {
+		return this.allQuestions.size();
 	}
 	
 
