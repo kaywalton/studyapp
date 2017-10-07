@@ -119,5 +119,12 @@ public class QuestionBank implements Serializable {
 		return this.allQuestions.size();
 	}
 	
+	/**
+	 * temp toString
+	 */
+	public String toString() {
+		return this.getName();
+	}
+	
 
 }

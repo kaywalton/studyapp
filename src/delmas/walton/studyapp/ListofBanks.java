@@ -52,4 +52,8 @@ public class ListofBanks implements Serializable{
 		}
 	}
 	
+	public String toString() {
+		return this.list.toString();
+	}
+	
 }
