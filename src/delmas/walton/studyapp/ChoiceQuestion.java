@@ -7,6 +7,8 @@ import java.util.ArrayList;
  * Creates a multiple choice question and prepares a formatted string with 
  * the question and choice options. Also includes the correct answer for verifying.
  * @author Kayla Walton
+ * creation date:
+ * Update : 10-07-2017		Reason: added constructor(String, boolean), signaled a bug in addChoice(String, boolean)		by: Isabelle Delmas
  *
  */
 public class ChoiceQuestion extends Question implements Serializable
@@ -21,14 +23,28 @@ public class ChoiceQuestion extends Question implements Serializable
 
    /**
     * construct a question with choices object
+    * @param question : question prompt
+    * @param rightAnswer : the correct answer
+    * @param isShuffleable : can the question be shuffled
     */
-   
    public ChoiceQuestion(String question, String rightAnswer, boolean isShuffleable) {
-	super(question, rightAnswer);
-	this.choices.add(rightAnswer);
-	this.shuffleable = isShuffleable;
+	   super(question, rightAnswer);
+	   this.choices.add(rightAnswer);
+	   this.shuffleable = isShuffleable;
    }
-/**
+   
+   /**
+    * construct a question with choices object
+    * @param question : question prompt
+    * @param isShuffleable : can the question be shuffled
+    */
+   public ChoiceQuestion(String question, boolean isShuffleable) {
+	   super();
+	   this.setText(question);
+	   this.shuffleable = isShuffleable;	   
+   }
+   
+   /**		DOES NOT WORK WHEN TRYING TO ADD A NEW CORRECT ANSWER
     * Stores a choice and whether it is correct
     * @param newChoice choice to be added
     * @param truthValue is it correct?
@@ -37,7 +53,7 @@ public class ChoiceQuestion extends Question implements Serializable
    {
       if (truthValue)   //if it is the correct value, then mark it and add to list
       {
-         
+         // TO BE FIXED
          choices.add(newChoice);
       }
       else

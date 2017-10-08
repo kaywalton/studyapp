@@ -46,6 +46,7 @@ public class QuizBankMenu {
 	private final String WRONG_PROMPT = "Wrong answer (" + this.WRONG_EXIT + " to ext): ";
 	private final String QUESTION_NOT_FOUND = "Question not found";
 	private final String QUESTION_REMOVED = "Question succeffuly removed";
+	private final String RIGHT_WRONG = "Is the the (r)ight or the (w)rong answer? ";
 
 	/**
 	 * Constructor
@@ -235,9 +236,9 @@ public class QuizBankMenu {
 	
 	private void addQuestionToBank(QuestionBank bank) {
 		Scanner in = new Scanner(System.in);
-		ChoiceQuestion question;
+		ChoiceQuestion question = null;
 		String prompt = "";
-		boolean shuffelable;
+		boolean shufflable;
 		String answer = "";
 		String temp = "";
 		ArrayList<String> wrong = new ArrayList<String>();
@@ -246,31 +247,51 @@ public class QuizBankMenu {
 		System.out.print(this.QUESTION_PROMPT);
 		prompt = in.nextLine();
 		
-		// Get the right answer
-		System.out.print(this.ANSWER_PROMPT);
-		answer = in.nextLine();
-		
-		
 		// Can be shuffled or not
 		String yn = "";
 		while ( !yn.equals("Y") && !yn.equals("N")) {
 			System.out.println(this.SHUFFELABLE_PROMPT);
 			yn = in.nextLine().substring(0, 1).toUpperCase();
 		}
-		shuffelable = yn.equals("Y");
+		shufflable = yn.equals("Y");
 		
-		// get the wrong answers
-		while(!temp.toLowerCase().equals("quit")) {
-			System.out.print(this.WRONG_PROMPT);
-			temp = in.nextLine();
-			wrong.add(temp);
+		// If the question can be shuffled
+		if(shufflable) {
+			// Get the right answer
+			System.out.print(this.ANSWER_PROMPT);
+			answer = in.nextLine();
+			
+			// get the wrong answers
+			while(!temp.toLowerCase().equals("quit")) {
+				System.out.print(this.WRONG_PROMPT);
+				temp = in.nextLine();
+				wrong.add(temp);
+			}
+			
+			// Set up the question
+			question = new ChoiceQuestion(prompt, answer, shufflable);
+			for(int i = 0; i < wrong.size(); i++) {
+				question.addChoice(wrong.get(i),  false);
+			}
+		} else {
+			// If the question is not shufflable
+			question = new ChoiceQuestion(prompt, shufflable);
+			while (answer.toUpperCase().equals(this.EXIT) ) {
+				// Get an answer
+				System.out.print(this.ANSWER_PROMPT);
+				answer = in.nextLine();
+				// Is it the right answer?
+				String wr = "";
+				while ( !wr.equals("W") && !wr.equals("R")) {
+					System.out.println(this.RIGHT_WRONG);
+					wr = in.nextLine().substring(0, 1).toUpperCase();
+				}
+				boolean truth = wr.equals("R");
+				question.addChoice(answer,  truth);	
+			}
 		}
 		
-		// Set up the question
-		question = new ChoiceQuestion(prompt, answer, shuffelable);
-		for(int i = 0; i < wrong.size(); i++) {
-			question.addChoice(wrong.get(i),  false);
-		}
+		
 		
 		// add the question to the bank and update file
 		bank.addQuestion(question);
