@@ -18,14 +18,13 @@ public class QuestionBank implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 4401620113342983294L;
-	private ArrayList<ChoiceQuestion> allQuestions;
+	private ArrayList<ChoiceQuestion> allQuestions = new ArrayList<ChoiceQuestion>();
 	private String name;
 	
 	/**
 	 * Default constructor
 	 */
 	public QuestionBank() {
-		allQuestions = new ArrayList<ChoiceQuestion>();
 	}
 	
 	/**
@@ -59,7 +58,11 @@ public class QuestionBank implements Serializable {
 	public void addQuestion(ChoiceQuestion newQuestion) {
 
 		// Add the new question to the list
-		allQuestions.add(newQuestion);
+		if(this.allQuestions != null) {
+			this.allQuestions.add(newQuestion);
+		} else {
+			System.out.println("allQuestion is null");
+		}
 	}
 	
 	/**
@@ -124,6 +127,10 @@ public class QuestionBank implements Serializable {
 	 */
 	public String toString() {
 		return this.getName();
+	}
+	
+	public void removeAllQuestions() {
+		this.allQuestions = new ArrayList<ChoiceQuestion>();
 	}
 	
 

@@ -39,6 +39,13 @@ public class QuizBankMenu {
 	private final String EXIT = EXIT_VALUE + ") Exit";
 	private final String NAME_PROMPT = "Name of the bank of question: ";
 	private final String BANK_NOT_FOUND = "This bank of question does not exits";
+	private final String QUESTION_PROMPT = "Question: ";
+	private final String SHUFFELABLE_PROMPT = "Can the question be shuffeled?";
+	private final String ANSWER_PROMPT= "Right answer: ";
+	private final String WRONG_EXIT = "exit";
+	private final String WRONG_PROMPT = "Wrong answer (" + this.WRONG_EXIT + " to ext): ";
+	private final String QUESTION_NOT_FOUND = "Question not found";
+	private final String QUESTION_REMOVED = "Question succeffuly removed";
 
 	/**
 	 * Constructor
@@ -180,8 +187,94 @@ public class QuizBankMenu {
 			System.out.println(this.BANK_NOT_FOUND);
 		} else {
 			this.displayUpdateBankMenu(bankName);
+			int choice = this.getUserChoice(this.UPDATE_OPTIONS.length);
+			switch (choice) {
+			// If the user wants to add a question
+			case 1:
+				this.addQuestionToBank(bank);
+				break;
+			// If the user wants to delete a question
+			case 2:
+				this.deleteQuestion(bank);
+				break;
+			// If the user wants to delete all the questions
+			case 3:
+				this.deleteAllQuestions(bank);
+				break;
+			}
+		}
+
+		
+	}
+	
+	private void deleteAllQuestions(QuestionBank bank) {
+		Scanner in = new Scanner(System.in);
+		String yn = "";
+		while ( !yn.equals("Y") && !yn.equals("N")) {
+			System.out.println("Are you sure you want to delete all the questions? This action cannot be undone.");
+			yn = in.nextLine().substring(0, 1).toUpperCase();
+		}
+		if (yn.equals("Y")) {
+			bank.removeAllQuestions();
 		}
 		
+	}
+	
+	private void deleteQuestion(QuestionBank bank) {
+		Scanner in = new Scanner(System.in);
+		
+		// Get the question to add
+		System.out.print(this.QUESTION_PROMPT);
+		if (bank.removeQuestion(in.nextLine())) {
+			System.out.println(this.QUESTION_REMOVED);
+		} else {
+			System.out.println(this.QUESTION_NOT_FOUND);
+		}
+		
+	}
+	
+	private void addQuestionToBank(QuestionBank bank) {
+		Scanner in = new Scanner(System.in);
+		ChoiceQuestion question;
+		String prompt = "";
+		boolean shuffelable;
+		String answer = "";
+		String temp = "";
+		ArrayList<String> wrong = new ArrayList<String>();
+		
+		// Get the question to add
+		System.out.print(this.QUESTION_PROMPT);
+		prompt = in.nextLine();
+		
+		// Get the right answer
+		System.out.print(this.ANSWER_PROMPT);
+		answer = in.nextLine();
+		
+		
+		// Can be shuffled or not
+		String yn = "";
+		while ( !yn.equals("Y") && !yn.equals("N")) {
+			System.out.println(this.SHUFFELABLE_PROMPT);
+			yn = in.nextLine().substring(0, 1).toUpperCase();
+		}
+		shuffelable = yn.equals("Y");
+		
+		// get the wrong answers
+		while(!temp.toLowerCase().equals("quit")) {
+			System.out.print(this.WRONG_PROMPT);
+			temp = in.nextLine();
+			wrong.add(temp);
+		}
+		
+		// Set up the question
+		question = new ChoiceQuestion(prompt, answer, shuffelable);
+		for(int i = 0; i < wrong.size(); i++) {
+			question.addChoice(wrong.get(i),  false);
+		}
+		
+		// add the question to the bank and update file
+		bank.addQuestion(question);
+		this.updateFile();		
 	}
 	
 	private void displayUpdateBankMenu(String bankName) {
