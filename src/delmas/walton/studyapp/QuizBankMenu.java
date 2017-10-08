@@ -16,6 +16,7 @@ import java.util.Scanner;
  * @author Isabelle Delmas
  * creation: October 6 2017
  * updates : October 7 2017 	by: Isabelle Delmas		Reason : continued implementation
+ * updates : October 8 2017 	by: Isabelle Delmas		Reason : continued implementation
  *
  */
 
@@ -33,7 +34,8 @@ public class QuizBankMenu {
 			"Delete all the banks"};
 	private final String[] UPDATE_OPTIONS = {"Add a question",
 			"Remove a question",
-			"Remove all questions"};
+			"Remove all questions",
+			"Print all questions"};
 	private final String WRONG_EXIT = "quit";
 	private final String CHOICE_PROMPT = "Your choice: ";
 	private final int EXIT_VALUE = 0;
@@ -203,6 +205,11 @@ public class QuizBankMenu {
 			case 3:
 				this.deleteAllQuestions(bank);
 				break;
+			case 4:
+				System.out.println(bank.displayQuestions());
+				Scanner in = new Scanner(System.in);
+				in.nextLine();
+				break;
 			}
 		}
 
@@ -220,6 +227,8 @@ public class QuizBankMenu {
 			bank.removeAllQuestions();
 		}
 		
+		//Update the file
+		this.updateFile();
 	}
 	
 	private void deleteQuestion(QuestionBank bank) {
@@ -292,8 +301,6 @@ public class QuizBankMenu {
 				question.addChoice(answer,  truth);	
 			}
 		}
-		
-		
 		
 		// add the question to the bank and update file
 		bank.addQuestion(question);

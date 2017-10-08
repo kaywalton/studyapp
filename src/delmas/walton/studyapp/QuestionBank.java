@@ -128,10 +128,21 @@ public class QuestionBank implements Serializable {
 	public String toString() {
 		return this.getName();
 	}
-	
+		
 	public void removeAllQuestions() {
 		this.allQuestions = new ArrayList<ChoiceQuestion>();
 	}
 	
+	/**
+	 * Displays all the questions in the bank
+	 * @return a String with the list of questions
+	 */
+	public String displayQuestions() {
+		String returnValue = "";
+		for(int i = 0; i < this.allQuestions.size(); i++) {
+			returnValue += this.allQuestions.get(i).getPrompt() + "\n";
+		}
+		return returnValue;
+	}
 
 }
