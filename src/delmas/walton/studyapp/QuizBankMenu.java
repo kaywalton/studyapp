@@ -34,6 +34,7 @@ public class QuizBankMenu {
 	private final String[] UPDATE_OPTIONS = {"Add a question",
 			"Remove a question",
 			"Remove all questions"};
+	private final String WRONG_EXIT = "quit";
 	private final String CHOICE_PROMPT = "Your choice: ";
 	private final int EXIT_VALUE = 0;
 	private final String EXIT = EXIT_VALUE + ") Exit";
@@ -42,8 +43,8 @@ public class QuizBankMenu {
 	private final String QUESTION_PROMPT = "Question: ";
 	private final String SHUFFELABLE_PROMPT = "Can the question be shuffeled?";
 	private final String ANSWER_PROMPT= "Right answer: ";
-	private final String WRONG_EXIT = "exit";
-	private final String WRONG_PROMPT = "Wrong answer (" + this.WRONG_EXIT + " to ext): ";
+	private final String ANSWER_PROMPT2= "Possibe answer (" + this.WRONG_EXIT + "): ";
+	private final String WRONG_PROMPT = "Wrong answer (" + this.WRONG_EXIT + " to exit): ";
 	private final String QUESTION_NOT_FOUND = "Question not found";
 	private final String QUESTION_REMOVED = "Question succeffuly removed";
 	private final String RIGHT_WRONG = "Is the the (r)ight or the (w)rong answer? ";
@@ -250,7 +251,7 @@ public class QuizBankMenu {
 		// Can be shuffled or not
 		String yn = "";
 		while ( !yn.equals("Y") && !yn.equals("N")) {
-			System.out.println(this.SHUFFELABLE_PROMPT);
+			System.out.print(this.SHUFFELABLE_PROMPT);
 			yn = in.nextLine().substring(0, 1).toUpperCase();
 		}
 		shufflable = yn.equals("Y");
@@ -276,14 +277,15 @@ public class QuizBankMenu {
 		} else {
 			// If the question is not shufflable
 			question = new ChoiceQuestion(prompt, shufflable);
-			while (answer.toUpperCase().equals(this.EXIT) ) {
+			while (true) {
 				// Get an answer
-				System.out.print(this.ANSWER_PROMPT);
+				System.out.print(this.ANSWER_PROMPT2);
 				answer = in.nextLine();
+				if (answer.toUpperCase().equals(this.WRONG_EXIT.toUpperCase())) {break;}
 				// Is it the right answer?
 				String wr = "";
 				while ( !wr.equals("W") && !wr.equals("R")) {
-					System.out.println(this.RIGHT_WRONG);
+					System.out.print(this.RIGHT_WRONG);
 					wr = in.nextLine().substring(0, 1).toUpperCase();
 				}
 				boolean truth = wr.equals("R");
