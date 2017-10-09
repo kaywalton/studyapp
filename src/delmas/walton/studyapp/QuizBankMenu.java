@@ -20,6 +20,7 @@ import java.util.Scanner;
  *
  */
 
+@SuppressWarnings("resource")
 public class QuizBankMenu {
 	private ListofBanks list;
 	private String fileName;
@@ -43,7 +44,7 @@ public class QuizBankMenu {
 	private final String NAME_PROMPT = "Name of the bank of question: ";
 	private final String BANK_NOT_FOUND = "This bank of question does not exits";
 	private final String QUESTION_PROMPT = "Question: ";
-	private final String SHUFFELABLE_PROMPT = "Can the question be shuffeled?";
+	private final String SHUFFELABLE_PROMPT = "Can the question be shuffeled? ";
 	private final String ANSWER_PROMPT= "Right answer: ";
 	private final String ANSWER_PROMPT2= "Possibe answer (" + this.WRONG_EXIT + "): ";
 	private final String WRONG_PROMPT = "Wrong answer (" + this.WRONG_EXIT + " to exit): ";
@@ -110,6 +111,21 @@ public class QuizBankMenu {
 			choice = getUserChoice(this.OPTIONS.length);
 			
 			switch (choice) {
+			// The user choose to start a quiz
+			case 1:
+				System.out.println("Please, come back later.");
+				in.nextLine();
+				break;
+			// The user choose to start a review session
+			case 2:
+				System.out.println("Please, come back later.");
+				in.nextLine();
+				break;
+			// The user choose to display some statistics
+			case 3:
+				System.out.println("Please, come back later.");
+				in.nextLine();
+				break;
 			// The user choose to create a new bank
 			case 4:
 				this.createNewBank();
@@ -123,6 +139,7 @@ public class QuizBankMenu {
 			// The user choose to display all the banks
 			case 7:
 				System.out.println(this.list.toString());
+				in.nextLine();
 				break;
 			// The user choose to delete all the banks
 			case 8:
@@ -186,36 +203,46 @@ public class QuizBankMenu {
 	 * @param bankName
 	 */
 	private void updateBank(String bankName) {
+		Scanner in = new Scanner(System.in);
+
 		QuestionBank bank = this.list.getBank(bankName);
+		int choice = -1;
+		// Check if the bank exit
 		if (bank == null) {
 			System.out.println(this.BANK_NOT_FOUND);
+		// If the bank exists, display another menu
 		} else {
-			this.displayUpdateBankMenu(bankName);
-			int choice = this.getUserChoice(this.UPDATE_OPTIONS.length);
-			switch (choice) {
-			// If the user wants to add a question
-			case 1:
-				this.addQuestionToBank(bank);
-				break;
-			// If the user wants to delete a question
-			case 2:
-				this.deleteQuestion(bank);
-				break;
-			// If the user wants to delete all the questions
-			case 3:
-				this.deleteAllQuestions(bank);
-				break;
-			case 4:
-				System.out.println(bank.displayQuestions());
-				Scanner in = new Scanner(System.in);
-				in.nextLine();
-				break;
+			while(choice != 0) {
+				this.displayUpdateBankMenu(bankName);
+				choice = this.getUserChoice(this.UPDATE_OPTIONS.length);
+				switch (choice) {
+				// If the user wants to add a question
+				case 1:
+					this.addQuestionToBank(bank);
+					break;
+				// If the user wants to delete a question
+				case 2:
+					this.deleteQuestion(bank);
+					in.nextLine();
+					break;
+				// If the user wants to delete all the questions
+				case 3:
+					this.deleteAllQuestions(bank);
+					in.nextLine();
+					break;
+				case 4:
+					System.out.println(bank.displayQuestions());
+					in.nextLine();
+					break;
+				}	
 			}
 		}
-
-		
 	}
 	
+	/**
+	 * Delete all the questions in a given bank of question
+	 * @param bank : the bank of question to delete the questions from
+	 */
 	private void deleteAllQuestions(QuestionBank bank) {
 		Scanner in = new Scanner(System.in);
 		String yn = "";
@@ -231,10 +258,15 @@ public class QuizBankMenu {
 		this.updateFile();
 	}
 	
+	/**
+	* Delete one question from a specific bank of question.
+	* Ask the user what question to remove
+	 * @param bank : bank to remove the question form
+	 */
 	private void deleteQuestion(QuestionBank bank) {
 		Scanner in = new Scanner(System.in);
 		
-		// Get the question to add
+		// Get the question to remove
 		System.out.print(this.QUESTION_PROMPT);
 		if (bank.removeQuestion(in.nextLine())) {
 			System.out.println(this.QUESTION_REMOVED);
@@ -242,8 +274,16 @@ public class QuizBankMenu {
 			System.out.println(this.QUESTION_NOT_FOUND);
 		}
 		
+		//Update the file
+		this.updateFile();
 	}
 	
+	
+	/**
+	 * Add a question to a specific bank
+	 * prompt the user for all the needed information
+	 * @param bank : the bank to add a question to
+	 */
 	private void addQuestionToBank(QuestionBank bank) {
 		Scanner in = new Scanner(System.in);
 		ChoiceQuestion question = null;
@@ -307,6 +347,10 @@ public class QuizBankMenu {
 		this.updateFile();		
 	}
 	
+	/**
+	 * Display the menu with the option to modify a bank of questions
+	 * @param bankName : the name of the bank to display
+	 */
 	private void displayUpdateBankMenu(String bankName) {
 		// Print the header
 		System.out.println(this.list.getBank(bankName).getName().toUpperCase());
@@ -338,7 +382,11 @@ public class QuizBankMenu {
 			System.out.println("Allright, lets get ride of everything!");
 		}
 		
+		//Update the file
+		this.updateFile();
+
 	}
+	
 	/**
 	 * Updates the file storing the list of banks
 	 * Display an error if the file could not be updated
