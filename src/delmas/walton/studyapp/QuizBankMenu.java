@@ -115,14 +115,17 @@ public class QuizBankMenu {
 			// The user choose to start a quiz
 			case 1:
 				this.startQuiz();
+				in.nextLine();
 				break;
 			// The user choose to start a review session
 			case 2:
 				this.startReview();
+				in.nextLine();
 				break;
 			// The user choose to display some statistics
 			case 3:
 				this.displayStatistics();
+				in.nextLine();
 				break;
 			// The user choose to create a new bank
 			case 4:
@@ -151,7 +154,6 @@ public class QuizBankMenu {
 	
 	/**
 	 * Start a quiz
-	 * TBD
 	 */
 	private void startQuiz() {
 		Scanner in = new Scanner(System.in);
@@ -170,12 +172,20 @@ public class QuizBankMenu {
 	
 	/**
 	 * Start a review session
-	 * TBD
 	 */
 	private void startReview() {
 		Scanner in = new Scanner(System.in);
-		System.out.println("Please, come back later.");
-		in.nextLine();
+		// Ask the user for a bank to use
+		System.out.print(this.NAME_PROMPT);
+		QuestionBank bank = this.list.getBank(in.nextLine());
+		// Check if the bank exit
+		if (bank == null) {
+			System.out.println(this.BANK_NOT_FOUND);
+		// If the bank exists, start a quiz
+		} else {
+			Review review = new Review(bank);
+			review.startReview();
+		}	
 	}
 	
 	/**
