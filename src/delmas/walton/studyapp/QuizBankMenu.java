@@ -23,6 +23,7 @@ import java.util.Scanner;
 @SuppressWarnings("resource")
 public class QuizBankMenu {
 	private ListofBanks list;
+	private final int QUIZ_LENGTH = 20;
 	private String fileName;
 	private final String HEADER = "Main Menu";
 	private final String[] OPTIONS = {"Start Quiz", 
@@ -113,18 +114,15 @@ public class QuizBankMenu {
 			switch (choice) {
 			// The user choose to start a quiz
 			case 1:
-				System.out.println("Please, come back later.");
-				in.nextLine();
+				this.startQuiz();
 				break;
 			// The user choose to start a review session
 			case 2:
-				System.out.println("Please, come back later.");
-				in.nextLine();
+				this.startReview();
 				break;
 			// The user choose to display some statistics
 			case 3:
-				System.out.println("Please, come back later.");
-				in.nextLine();
+				this.displayStatistics();
 				break;
 			// The user choose to create a new bank
 			case 4:
@@ -149,6 +147,45 @@ public class QuizBankMenu {
 		}
 
 		
+	}
+	
+	/**
+	 * Start a quiz
+	 * TBD
+	 */
+	private void startQuiz() {
+		Scanner in = new Scanner(System.in);
+		// Ask the user for a bank to use
+		System.out.print(this.NAME_PROMPT);
+		QuestionBank bank = this.list.getBank(in.nextLine());
+		// Check if the bank exit
+		if (bank == null) {
+			System.out.println(this.BANK_NOT_FOUND);
+		// If the bank exists, start a quiz
+		} else {
+			Quiz quiz = new Quiz(bank);
+			quiz.startTest();
+		}		
+	}
+	
+	/**
+	 * Start a review session
+	 * TBD
+	 */
+	private void startReview() {
+		Scanner in = new Scanner(System.in);
+		System.out.println("Please, come back later.");
+		in.nextLine();
+	}
+	
+	/**
+	 * Display statistics
+	 * TBD
+	 */
+	private void displayStatistics() {
+		Scanner in = new Scanner(System.in);
+		System.out.println("Please, come back later.");
+		in.nextLine();
 	}
 	
 	/**

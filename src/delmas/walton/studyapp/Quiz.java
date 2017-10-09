@@ -5,19 +5,20 @@ import java.util.Scanner;
  * Creates a test using a given quiz bank.
  * Keeps score of total questions right.
  * @author Kayla Walton
- *
+ * Updated on 10-08-17 by Isabelle Delmas		Reason: Changed Test(String) to Test(QuestionBank) to be constant with QuizBankMenu
+ * 														Changed name of the class
  */
-public class Test {
+public class Quiz {
    private int sizeOfTest;
    private int score;
-   private String fileName;
+   private QuestionBank bank;
    /**
     * Takes a given bank and creates a test
     * @param bankName bank to be used for test
     */
-   public Test(String bankName)
+   public Quiz(QuestionBank newBank)
    {
-      this.fileName = bankName;
+      this.bank = newBank;
       this.score = 0;
       this.sizeOfTest = 0;
    }
@@ -55,7 +56,7 @@ public class Test {
             System.err.println("Input wasn't an integer");
          }
        } //end while loop
-      scan.close();
+      //scan.close(); <-- [by Isabelle] do not close System.in, I do not know why but is bugs when you reopen it later in the same program
    }
    /**
     * private method used by startTest() to increase score
@@ -63,7 +64,10 @@ public class Test {
    private boolean increaseScore()
    {
       //person answered correctly. increase the score.
-      score =+ 1;
+	   					// Comment by Isabelle on 10-08-17
+      score =+ 1;		//<-- if we choose to have a return value to signify success, we need to have some kind of check
+      					// like check if the score will not go above the max int
+      					// or if we do not check anything we do not need a return value
       return true;
    }
 }
