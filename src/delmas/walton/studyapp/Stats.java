@@ -2,12 +2,9 @@ package delmas.walton.studyapp;
 
 
 /**
- * +Stats()
-+reportOne(bankName: String)
-+reportAll(listBank: String[])
-+resetOne(bankName: String)
-+resetAll(listBank: String)
- * @author isabelle
+ * Class Displaying the Stats for QuestionBanks and ListofBanks.
+ * @author Isabelle Delmas
+ * Created on: 10-08-17
  *
  */
 public class Stats {
