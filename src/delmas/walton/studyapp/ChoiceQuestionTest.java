@@ -29,7 +29,7 @@ public class ChoiceQuestionTest
       assertEquals("Choice check", "Vera Wang", secondQ.getChoices().get(1));
       assertEquals("Second choice", "Barbara Gordon", secondQ.getChoices().get(2));
       assertEquals("Third choice", "Sarah Palin", secondQ.getChoices().get(3));
-      assertNotNull(secondQ.displayQuestionChoices());
+      assertNotNull(secondQ.displayQuestion());
      
    }
   

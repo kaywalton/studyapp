@@ -2,6 +2,7 @@ package delmas.walton.studyapp;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Creates a multiple choice question and prepares a formatted string with 
@@ -9,6 +10,8 @@ import java.util.ArrayList;
  * @author Kayla Walton
  * creation date:
  * Update : 10-07-2017		Reason: added constructor(String, boolean), signaled a bug in addChoice(String, boolean)		by: Isabelle Delmas
+ * Update : 10-13-2017		Reason: added stub for checkAnswer(int), fixed bug in displayQuestion, implemented shuffle()	by: Isabelle Delmas
+
  *
  */
 public class ChoiceQuestion extends Question implements Serializable
@@ -72,12 +75,12 @@ public class ChoiceQuestion extends Question implements Serializable
    /**
     * Displays the question and all added choices
     */
-    public String displayQuestionChoices()
+    public String displayQuestion()
    {
-      String displayChoices = "";
+      String displayChoices = this.getPrompt() + "\n";
       for (int i = 0; i < choices.size(); i++) 
       {
-      displayChoices = displayChoices + i + ": " + choices.get(i) + "\n";
+      displayChoices = displayChoices + (i+1) + ": " + choices.get(i) + "\n";
       }
       return displayChoices;
    }
@@ -88,5 +91,24 @@ public class ChoiceQuestion extends Question implements Serializable
     */
    public String getPrompt() {
 	   return super.displayQuestion();
+   }
+   
+   /**
+    * Call the super/checkAnswer(String) from parents class
+    * TODO
+    * @param guess : interger guessed by the user
+    * @return
+    */
+   public boolean checkAnswer(int guess){
+	   return false;
+   }
+   
+   /**
+    * If possible, shuffles the choices
+    */
+   public void shuffle(){
+	   if(this.shuffleable){
+		   Collections.shuffle(this.choices);
+	   }
    }
 }

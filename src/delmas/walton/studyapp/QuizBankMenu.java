@@ -17,13 +17,15 @@ import java.util.Scanner;
  * creation: October 6 2017
  * updates : October 7 2017 	by: Isabelle Delmas		Reason : continued implementation
  * updates : October 8 2017 	by: Isabelle Delmas		Reason : continued implementation
+ * updates : October 14 2017 	by: Isabelle Delmas		Reason : fixed bug in addQuestionToBank(QuestionBank) (was adding quit as a possible answer)
  *
  */
 
 @SuppressWarnings("resource")
 public class QuizBankMenu {
 	private ListofBanks list;
-	private final int QUIZ_LENGTH = 20;
+	//private final int QUIZ_LENGTH = 20;
+	public static final String REVIEW_TIME = "For how long do you want to review (in minutes): ";
 	private String fileName;
 	private final String HEADER = "Main Menu";
 	private final String[] OPTIONS = {"Start Quiz", 
@@ -157,6 +159,7 @@ public class QuizBankMenu {
 	 */
 	private void startQuiz() {
 		Scanner in = new Scanner(System.in);
+		
 		// Ask the user for a bank to use
 		System.out.print(this.NAME_PROMPT);
 		QuestionBank bank = this.list.getBank(in.nextLine());
@@ -176,6 +179,15 @@ public class QuizBankMenu {
 	private void startReview() {
 		Scanner in = new Scanner(System.in);
 		// Ask the user for a bank to use
+		long seconds = 0;
+		
+		// Ask the user for how long they want to review
+		System.out.print(QuizBankMenu.REVIEW_TIME);
+		if(in.hasNextInt()){
+			seconds = in.nextInt()*60*1000;
+		}
+		in.nextLine();
+		
 		System.out.print(this.NAME_PROMPT);
 		QuestionBank bank = this.list.getBank(in.nextLine());
 		// Check if the bank exit
@@ -183,7 +195,7 @@ public class QuizBankMenu {
 			System.out.println(this.BANK_NOT_FOUND);
 		// If the bank exists, start a quiz
 		} else {
-			Review review = new Review(bank);
+			Review review = new Review(bank, seconds);
 			review.startReview();
 		}	
 	}
@@ -362,7 +374,9 @@ public class QuizBankMenu {
 			while(!temp.toLowerCase().equals("quit")) {
 				System.out.print(this.WRONG_PROMPT);
 				temp = in.nextLine();
-				wrong.add(temp);
+				if (!temp.toLowerCase().equals("quit")){
+					wrong.add(temp);
+				}
 			}
 			
 			// Set up the question

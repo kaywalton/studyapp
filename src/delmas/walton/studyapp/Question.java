@@ -111,4 +111,12 @@ public class Question implements Serializable {
 		// Make sure the assignment worked properly
 		return (this.knownFlag == 0);
 	}
+	
+	/**
+	 * Return the answer to a question
+	 * @return : the right answer
+	 */
+	public String getAnswer(){
+		return this.answer;
+	}
 }

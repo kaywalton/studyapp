@@ -90,12 +90,17 @@ public class QuestionBank implements Serializable {
 	/**
 	 * Returns a random question to the user
 	 * Higher probability to get a non-mastered question
-	 * @return : a random question
+	 * @return : a random question, null if the bank is empty
 	 */
 	public ChoiceQuestion getRandomQuestion() {
 		final double MASTERED_RATE = 25; 	// 25 out of 100;
 		boolean found = false;
 		ChoiceQuestion question = null;
+		
+		// Make sure the list is not empty
+		if(this.allQuestions.isEmpty()){
+			found = true;	// will not enter the next while loop and will return null
+		}
 		
 		// Repeat until a question is found
 		while (!found) {
@@ -109,6 +114,8 @@ public class QuestionBank implements Serializable {
 				int chance = randomGenerator.nextInt(100);
 				if (chance < MASTERED_RATE) {found = true;}
 				// Else gets another question
+			} else{
+				found = true;
 			}
 		}
 		return question;
