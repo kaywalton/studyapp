@@ -2,7 +2,7 @@ package delmas.walton.studyapp;
 
 import java.util.Scanner;
 
-import org.apache.commons.lang3.time.StopWatch;
+//import org.apache.commons.lang3.time.StopWatch;
 /**
  * Initializes a review session from a specified bank of questions
  * 
@@ -38,7 +38,8 @@ public class Review {
 	 */
 	public void startReview()
 	{
-		@SuppressWarnings("resource")
+		/*
+		 @SuppressWarnings("resource")
 		Scanner in = new Scanner(System.in);
 		int answer = -1;
 		boolean right = false;
@@ -89,5 +90,6 @@ public class Review {
 			System.out.println(Review.EMPTY_BANK);
 		}
 
+	}*/
 	}
 }
