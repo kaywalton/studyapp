@@ -93,24 +93,30 @@ public class MainGUI extends Application {
 		mainMenuPane.setAlignment(Pos.CENTER);
 		
 		// Create the add question pane
+		final int MAX_ANSWERS = 7;
 		GridPane addQuestionPane = new GridPane();
 		Label questionPrompt = new Label("question prompt:");
 		TextField questionPromptField = new TextField();
 		ArrayList<Label> answerLabels = new ArrayList<>();
 		ArrayList<TextField> answerFields = new ArrayList<>();
-		for(int i = 0; i < 7; i++) {
+		ArrayList<CheckBox> rightAnswerBox = new ArrayList<>();
+		for(int i = 0; i < MAX_ANSWERS; i++) {
 			answerLabels.add(new Label());
 			answerFields.add(new TextField());
 			answerLabels.get(i).setText("answer " + (i+1) + ":");
+			rightAnswerBox.add(new CheckBox("right answer"));
 		}
-		CheckBox isShuffleable = new CheckBox("The question can be shuffled");
+		CheckBox isShuffleable = new CheckBox("Can be shuffled");
+		Button validateNewQuestionBtn = new Button("Add question");
 		addQuestionPane.add(questionPrompt, 0,  0);
-		addQuestionPane.add(questionPromptField, 1, 0);
-		for(int i = 0; i < 7; i++ ) {
+		addQuestionPane.add(questionPromptField, 1, 0, 3, 1);
+		for(int i = 0; i < MAX_ANSWERS; i++ ) {
 			addQuestionPane.add(answerLabels.get(i), 0, i+1);
-			addQuestionPane.add(answerFields.get(i), 1, i+1);
+			addQuestionPane.add(answerFields.get(i), 1, i+1, 3, 1);
+			addQuestionPane.add(rightAnswerBox.get(i),  4, i+1);
 		}
 		addQuestionPane.add(isShuffleable, 0, 9);
+		addQuestionPane.add(validateNewQuestionBtn, 4, 10);
 
 		
 		
@@ -125,6 +131,84 @@ public class MainGUI extends Application {
 		
 		// Listen for button clicks
 		
+		// When the validate new question button is clicked
+		// Saves the question and clear the fields
+		validateNewQuestionBtn.setOnAction((ActionEvent e)->{
+			this.addQuestionToBank(questionPromptField, answerFields, rightAnswerBox, isShuffleable);
+		});
+		
+		//When a right answer check box is clicked
+		// Cancels any other selection (only one right answer might be selected at a time)
+		rightAnswerBox.get(0).setOnAction((ActionEvent e)->{
+			if(rightAnswerBox.get(0).isSelected()) {
+				for(int i = 0; i < MAX_ANSWERS; i++) {
+					rightAnswerBox.get(i).setSelected(false);
+				}
+				rightAnswerBox.get(0).setSelected(true);
+			} else {
+				rightAnswerBox.get(0).setSelected(false);
+			}
+		});
+		rightAnswerBox.get(1).setOnAction((ActionEvent e)->{
+			if(rightAnswerBox.get(1).isSelected()) {
+				for(int i = 0; i < MAX_ANSWERS; i++) {
+					rightAnswerBox.get(i).setSelected(false);
+				}
+				rightAnswerBox.get(1).setSelected(true);
+			} else {
+				rightAnswerBox.get(1).setSelected(false);
+			}
+		});
+		rightAnswerBox.get(2).setOnAction((ActionEvent e)->{
+			if(rightAnswerBox.get(2).isSelected()) {
+				for(int i = 0; i < MAX_ANSWERS; i++) {
+					rightAnswerBox.get(i).setSelected(false);
+				}
+				rightAnswerBox.get(2).setSelected(true);
+			} else {
+				rightAnswerBox.get(2).setSelected(false);
+			}
+		});
+		rightAnswerBox.get(3).setOnAction((ActionEvent e)->{
+			if(rightAnswerBox.get(3).isSelected()) {
+				for(int i = 0; i < MAX_ANSWERS; i++) {
+					rightAnswerBox.get(i).setSelected(false);
+				}
+				rightAnswerBox.get(3).setSelected(true);
+			} else {
+				rightAnswerBox.get(3).setSelected(false);
+			}
+		});
+		rightAnswerBox.get(4).setOnAction((ActionEvent e)->{
+			if(rightAnswerBox.get(4).isSelected()) {
+				for(int i = 0; i < MAX_ANSWERS; i++) {
+					rightAnswerBox.get(i).setSelected(false);
+				}
+				rightAnswerBox.get(4).setSelected(true);
+			} else {
+				rightAnswerBox.get(4).setSelected(false);
+			}
+		});
+		rightAnswerBox.get(5).setOnAction((ActionEvent e)->{
+			if(rightAnswerBox.get(5).isSelected()) {
+				for(int i = 0; i < MAX_ANSWERS; i++) {
+					rightAnswerBox.get(i).setSelected(false);
+				}
+				rightAnswerBox.get(5).setSelected(true);
+			} else {
+				rightAnswerBox.get(5).setSelected(false);
+			}
+		});
+		rightAnswerBox.get(6).setOnAction((ActionEvent e)->{
+			if(rightAnswerBox.get(6).isSelected()) {
+				for(int i = 6; i < MAX_ANSWERS; i++) {
+					rightAnswerBox.get(i).setSelected(false);
+				}
+				rightAnswerBox.get(6).setSelected(true);
+			} else {
+				rightAnswerBox.get(6).setSelected(false);
+			}
+		});
 		
 		// When the "Load Bank" button is clicked
 		loadBankbtn.setOnAction((ActionEvent e)->{
@@ -236,4 +320,36 @@ public class MainGUI extends Application {
 		
 		return flag;
 	}
+
+	/**
+	 * Add a question to this.currentBank and clear all the fields
+	 * @param questionPromptField prompt for the question
+	 * @param answerFields list of the possible answers
+	 * @param rightAnswerBox list of the check box for the right answer
+	 * @param isShuffleable check box indicating if the question is shufflable.
+	 */
+	private void addQuestionToBank(TextField questionPromptField,ArrayList<TextField> answerFields, ArrayList<CheckBox> rightAnswerBox, CheckBox isShuffleable) {
+		ChoiceQuestion question = null;
+		
+		// Create the question
+		if(questionPromptField.getText()!= null && !questionPromptField.getText().equals("")) {
+			question = new ChoiceQuestion(questionPromptField.getText(), isShuffleable.isSelected());
+		}
+		for(int i = 0; i < rightAnswerBox.size(); i++) {
+			if(answerFields.get(i).getText() != null && !answerFields.get(i).getText().equals("")) {
+				question.addChoice(answerFields.get(i).getText(), rightAnswerBox.get(i).isSelected());
+			}
+		}
+		// Add it to the bank
+		this.currentBank.addQuestion(question);
+		
+		// Clear fields
+		questionPromptField.clear();
+		for(int i = 0; i < rightAnswerBox.size(); i++) {
+			answerFields.get(i).clear();
+			rightAnswerBox.get(i).setSelected(false);
+		}
+		
+	}
+
 }
