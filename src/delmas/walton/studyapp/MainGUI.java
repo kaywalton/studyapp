@@ -117,7 +117,6 @@ public class MainGUI extends Application {
 		}
 		addQuestionPane.add(isShuffleable, 0, 9);
 		addQuestionPane.add(validateNewQuestionBtn, 4, 10);
-
 		
 		
 		//Set up initial display
@@ -130,6 +129,23 @@ public class MainGUI extends Application {
 		fileChooser.setTitle("Open Resource File");
 		
 		// Listen for button clicks
+		
+		// When the startQuiz button is pressed
+		startQuizBtn.setOnAction((ActionEvent e) ->{
+			// Ask the user for the number of question they want in their test
+			TextInputDialog dialog = new TextInputDialog("");
+			dialog.setTitle("Number of Questions");
+			dialog.setHeaderText("How long should the quiz be?");
+			dialog.setContentText("Number of questions: ");
+			Optional<String> result = dialog.showAndWait();
+			
+			// Open the quiz pane
+			if (result.isPresent()){
+				// Try to load the bank
+				int numberQuestions = Integer.parseInt(result.get());
+				root.setCenter(new QuizPane(this.currentBank,numberQuestions));
+			}
+		});
 		
 		// When the validate new question button is clicked
 		// Saves the question and clear the fields
@@ -251,9 +267,6 @@ public class MainGUI extends Application {
 					// Create the file
 					this.updateFile();
 				}
-				
-					// else create the new QuestionBank file
-					// set this.currentBank
 			}
 
 		});
@@ -341,10 +354,13 @@ public class MainGUI extends Application {
 			}
 		}
 		// Add it to the bank
-		this.currentBank.addQuestion(question);
+		if(question != null) {
+			this.currentBank.addQuestion(question);
+		}
 		
 		// Clear fields
 		questionPromptField.clear();
+		isShuffleable.setSelected(false);
 		for(int i = 0; i < rightAnswerBox.size(); i++) {
 			answerFields.get(i).clear();
 			rightAnswerBox.get(i).setSelected(false);
