@@ -28,7 +28,6 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -62,6 +61,7 @@ public class MainGUI extends Application {
 	final private ToggleGroup choiceGroup = new ToggleGroup();
 	private VBox quizFeedbackPane;
 	private Label quizFeedbackLabel;
+	private Label questionNumberLabel;
 
 	@Override
 	public void start(Stage stage) {
@@ -99,7 +99,8 @@ public class MainGUI extends Application {
 		VBox leftMenu = new VBox();
 		Button addQuestionbtn = new Button("Add a question");
 		Button removeQuestionbtn = new Button("Remove a question");
-		leftMenu.getChildren().addAll(addQuestionbtn, removeQuestionbtn);
+		Button backToMMbtn = new Button("Back to main menu");
+		leftMenu.getChildren().addAll(backToMMbtn, addQuestionbtn, removeQuestionbtn);
 		leftMenu.setSpacing(10);
 		leftMenu.setAlignment(Pos.CENTER);
 		manageBankPane.setLeft(leftMenu);
@@ -149,12 +150,12 @@ public class MainGUI extends Application {
 		this.quizNumberRight = 0;
 		this.quizPane = new VBox();
 		Label title = new Label("Quiz Time!");
-		Label questionNumber = new Label("Question #" + this.quizQAnswered + "/" + this.quizLength);
+		this.questionNumberLabel = new Label("Question #" + this.quizQAnswered + "/" + this.quizLength);
 		this.AskQuestionPrompt = new Label("This is the question");
 		this.question = null;
 		Button quizNextQuestionBtn = new Button("Next");
 		this.answerSelection = new ArrayList<RadioButton>();
-		quizPane.getChildren().addAll(title, questionNumber, AskQuestionPrompt);
+		quizPane.getChildren().addAll(title, this.questionNumberLabel, this.AskQuestionPrompt);
 
 		for (int i = 0; i < 7; i++) {
 			answerSelection.add(new RadioButton());
@@ -183,7 +184,10 @@ public class MainGUI extends Application {
 		backToMainBtn.setOnAction((ActionEvent e)->{
 			this.root.setCenter(this.mainMenuPane);
 		});
-		
+		// When the back to main menu button is pressed
+		backToMMbtn.setOnAction((ActionEvent e)->{
+			this.root.setCenter(this.mainMenuPane);
+		});
 		// When the quiz next question button is pressed
 		quizNextQuestionBtn.setOnAction(this::answerQuizQuestion);
 		
@@ -204,6 +208,7 @@ public class MainGUI extends Application {
 
 		// When the manage bank button is clicked
 		manageBankBtn.setOnAction((ActionEvent e) -> {
+			this.manageBankPane.setCenter(addQuestionPane);
 			root.setCenter(manageBankPane);
 		});
 
@@ -219,9 +224,9 @@ public class MainGUI extends Application {
 	}
 
 	private void answerQuizQuestion(ActionEvent e) {
-		
+
 		// if the quiz is not over yet
-		if(this.quizQAnswered < (this.quizLength - 1)) {
+		if(this.quizQAnswered < this.quizLength) {
 			// Check the answer
 			if (this.question.checkAnswer(choiceGroup.getSelectedToggle().getUserData().toString())) {
 				this.quizNumberRight++;
@@ -229,10 +234,20 @@ public class MainGUI extends Application {
 			for (int i = 0; i < this.question.getChoices().size(); i++) {
 				answerSelection.get(i).setVisible(false);
 			}
-			this.quizQAnswered++;
 			this.promptRandomQuestion();
+			this.quizQAnswered++;
+			this.questionNumberLabel.setText("Question #" + this.quizQAnswered + "/" + this.quizLength);
+
 
 		} else {
+			// Check the last answer
+			if (this.question.checkAnswer(choiceGroup.getSelectedToggle().getUserData().toString())) {
+				this.quizNumberRight++;
+			}
+			for (int i = 0; i < this.question.getChoices().size(); i++) {
+				answerSelection.get(i).setVisible(false);
+			}
+			
 			// Display feedback
 			this.quizFeedbackLabel.setText("You got " + this.quizNumberRight + " questions right out of " + this.quizLength + ".");
 			this.root.setCenter(quizFeedbackPane);
@@ -242,7 +257,7 @@ public class MainGUI extends Application {
 	private void promptRandomQuestion() {
 			question = this.currentBank.getRandomQuestion();
 			if( this.question != null) {
-				this.AskQuestionPrompt.setText(question.getPrompt());
+				this.AskQuestionPrompt.setText(question.displayQuestion());
 				ArrayList<String> choice = question.getChoices();
 				for (int i = 0; i < choice.size(); i++) {
 					answerSelection.get(i).setText(choice.get(i));
@@ -271,7 +286,10 @@ public class MainGUI extends Application {
 			// Try to load the bank
 			String input = result.get();
 			if (input != null && input.matches("[0-9]+")) {
+				this.quizQAnswered = 1;
+				this.quizNumberRight = 0;
 				this.quizLength = Integer.parseInt(input);
+				this.questionNumberLabel.setText("Question #" + this.quizQAnswered + "/" + this.quizLength);
 				root.setCenter(quizPane);
 				this.updateFile();
 			}
@@ -337,7 +355,7 @@ public class MainGUI extends Application {
 			// Pop up a warning message
 			Alert alert = new Alert(AlertType.WARNING);
 			alert.setTitle("Warning");
-			alert.setHeaderText("Could not savd data");
+			alert.setHeaderText("Could not save data");
 			alert.setContentText(MainGUI.ERROR_FILE_NOT_SAVED);
 			alert.showAndWait();
 		}
