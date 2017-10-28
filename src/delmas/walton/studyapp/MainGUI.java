@@ -17,6 +17,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -62,6 +63,14 @@ public class MainGUI extends Application {
 	private VBox quizFeedbackPane;
 	private Label quizFeedbackLabel;
 	private Label questionNumberLabel;
+	private VBox removeQuestionPane;
+	private ArrayList<CheckBox> listOfQuestion = new ArrayList<>();
+	private VBox reviewPane;
+	private Label reviewQuestionNumer;
+	private Label reviewAskQuestionPrompt;
+	private ArrayList<RadioButton> reviewChoiceSelection;
+	final private ToggleGroup reviewChoiceGroup = new ToggleGroup();
+	
 
 	@Override
 	public void start(Stage stage) {
@@ -112,7 +121,8 @@ public class MainGUI extends Application {
 		Button startQuizBtn = new Button("Start Quiz");
 		Button startReviewBtn = new Button("Start Review");
 		Button manageBankBtn = new Button("Modify existing bank of questions");
-		mainMenuPane.getChildren().addAll(this.bankTitle, startQuizBtn, startReviewBtn, manageBankBtn);
+		Button feedbackBtn = new Button("Feedback");
+		mainMenuPane.getChildren().addAll(this.bankTitle, startQuizBtn, startReviewBtn, manageBankBtn, feedbackBtn);
 		mainMenuPane.setSpacing(15);
 		mainMenuPane.setAlignment(Pos.CENTER);
 
@@ -157,7 +167,7 @@ public class MainGUI extends Application {
 		this.answerSelection = new ArrayList<RadioButton>();
 		quizPane.getChildren().addAll(title, this.questionNumberLabel, this.AskQuestionPrompt);
 
-		for (int i = 0; i < 7; i++) {
+		for (int i = 0; i < MAX_ANSWERS; i++) {
 			answerSelection.add(new RadioButton());
 			answerSelection.get(i).setToggleGroup(choiceGroup);
 			answerSelection.get(i).setVisible(false);
@@ -165,10 +175,33 @@ public class MainGUI extends Application {
 		}
 		quizPane.getChildren().addAll(quizNextQuestionBtn);
 		
+		// Create the review pane
+		Label reviewTitle = new Label("Review Time!");
+		this.reviewQuestionNumer = new Label();
+		this.reviewPane = new VBox();
+		Button reviewNextQuestionBtn = new Button("Check Answer");
+		Button reviewEndBtn = new Button("End Review");
+		this.reviewAskQuestionPrompt = new Label();
+		this.reviewChoiceSelection = new ArrayList<RadioButton>();
+		for(int i = 0; i < MAX_ANSWERS; i++) {
+			reviewChoiceSelection.add(new RadioButton());
+			reviewChoiceSelection.get(i).setToggleGroup(this.reviewChoiceGroup);
+			reviewChoiceSelection.get(i).setVisible(false);
+		}
+		this.reviewPane.getChildren().addAll(reviewTitle,this.reviewQuestionNumer, this.reviewAskQuestionPrompt);
+		this.reviewPane.getChildren().addAll(reviewChoiceSelection);
+		this.reviewPane.getChildren().addAll(reviewNextQuestionBtn, reviewEndBtn);
+		
 		// Create the quiz feedback pane
 		this.quizFeedbackPane = new VBox();
 		quizFeedbackLabel = new Label();
 		this.quizFeedbackPane.getChildren().addAll(quizFeedbackLabel, backToMainBtn);
+		
+		// Create the remove question pane;
+		this.removeQuestionPane = new VBox();
+		final Button removeSelectedQuestionsBtn = new Button("Remove Selected Questions");
+		this.removeQuestionPane.getChildren().add(removeSelectedQuestionsBtn);
+		
 
 		
 		// Create file opener and other utilities
@@ -180,49 +213,154 @@ public class MainGUI extends Application {
 		root.setCenter(welcomePane);
 
 		// Listen for button clicks
+		// When the feedback button is pressed
+		feedbackBtn.setOnAction(this::promptGeneralFeedback);
+		//When the answer review question btn is pressed
+		reviewNextQuestionBtn.setOnAction(this::answerReviewQuestion);
+		//When the end review button is pressed, go back to main menu
+		reviewEndBtn.setOnAction(this::backToMain);
+		// When the start review button is pressed
+		startReviewBtn.setOnAction(this::startReview);
+		// When the remove selected question button is pressed
+		removeSelectedQuestionsBtn.setOnAction(this::removeSelectedQuestions);
+		// When the remove question button is pressed
+		removeQuestionbtn.setOnAction(this::displayQuestionsToRemove);
 		// When the back to main menu button is pressed
-		backToMainBtn.setOnAction((ActionEvent e)->{
-			this.root.setCenter(this.mainMenuPane);
-		});
+		backToMainBtn.setOnAction(this::backToMain);
 		// When the back to main menu button is pressed
-		backToMMbtn.setOnAction((ActionEvent e)->{
-			this.root.setCenter(this.mainMenuPane);
-		});
+		backToMMbtn.setOnAction(this::backToMain);
 		// When the quiz next question button is pressed
-		quizNextQuestionBtn.setOnAction(this::answerQuizQuestion);
-		
+		quizNextQuestionBtn.setOnAction(this::answerQuizQuestion);	
 		// When the startQuiz button is pressed
 		startQuizBtn.setOnAction(this::startQuiz);
-
 		// When the validate new question button is clicked
 		// Saves the question and clear the fields
 		validateNewQuestionBtn.setOnAction((ActionEvent e) -> {
 			this.addQuestionToBank(questionPromptField, answerFields, rightAnswerBox, isShuffleable);
 		});
-
 		// When the "Load Bank" button is clicked
-		loadBankbtn.setOnAction(this::loadBank);
-
+		this.loadBankbtn.setOnAction(this::loadBank);
 		// When the "Create new Bank button is clicked
-		newBankbtn.setOnAction(this::newBank);
-
+		this.newBankbtn.setOnAction(this::newBank);
 		// When the manage bank button is clicked
 		manageBankBtn.setOnAction((ActionEvent e) -> {
 			this.manageBankPane.setCenter(addQuestionPane);
 			root.setCenter(manageBankPane);
 		});
-
 		// When the add question button is clicked
 		addQuestionbtn.setOnAction((ActionEvent e) -> {
 			manageBankPane.setCenter(addQuestionPane);
 		});
-
+		
 		// Display all
 		primaryStage.setScene(new Scene(root, 1000, 600));
 		primaryStage.show();
 
 	}
+	
+	private void promptGeneralFeedback(ActionEvent e) {
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Progress Report");
+		alert.setHeaderText("Here is your progress so far.");
+		alert.setContentText("You master " + this.currentBank.getPercentKnown() + "% of the question(s).\n\nThere are still " + (this.currentBank.numberOfQuestions()-this.currentBank.getKnown()) + " questions you need to work on\nout of the " + this.currentBank.numberOfQuestions() + " questions in that bank.");
 
+		alert.showAndWait();
+	}
+	
+	private void answerReviewQuestion(ActionEvent e) {
+		ButtonType okBtn = new ButtonType("Ok");
+		ButtonType tagBtn = new ButtonType("Tag the question");
+		Optional<ButtonType> result;
+
+		// if the answer was right
+		if (this.question.checkAnswer(reviewChoiceGroup.getSelectedToggle().getUserData().toString())) {
+			// Display positive feedback
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.setTitle("Feedback");
+			alert.setHeaderText(null);
+			alert.setContentText("That's correct!");
+			alert.getButtonTypes().setAll(okBtn, tagBtn);
+			result = alert.showAndWait();
+			// If the user wants to tag the question
+			if(result.get() == tagBtn) {
+				this.tagQuestion();
+			}
+		} else {
+			// Display the right answer
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.setTitle("Feedback");
+			alert.setHeaderText("Not quite");
+			alert.setContentText("The correct answer was:\n" + this.question.getAnswer());
+			alert.getButtonTypes().setAll(okBtn, tagBtn);
+			result = alert.showAndWait();
+			// If the user wants to tag the question
+			if(result.get() == tagBtn) {
+				this.tagQuestion();
+			}
+		}
+		// hides the answers
+		for (int i = 0; i < this.question.getChoices().size(); i++) {
+			reviewChoiceSelection.get(i).setVisible(false);
+		}
+		// Display the next question
+		this.promptRandomQuestion(this.reviewAskQuestionPrompt, this.reviewChoiceSelection);
+		this.quizQAnswered++;
+		this.reviewQuestionNumer.setText("Question #" + this.quizQAnswered);
+		this.updateFile();
+	}
+
+	private void tagQuestion() {
+		
+	}
+	
+	private void startReview(ActionEvent e) {
+		
+		if (this.currentBank.numberOfQuestions() > 0 ) {
+			// Try to load the bank
+				this.quizQAnswered = 1;
+				this.promptRandomQuestion(this.reviewAskQuestionPrompt, this.reviewChoiceSelection);
+				this.reviewQuestionNumer.setText("Question #" + this.quizQAnswered);
+				this.root.setCenter(this.reviewPane);
+		}
+		
+	}
+	
+	private void backToMain(ActionEvent e) {
+		this.root.setCenter(this.mainMenuPane);
+	}
+	
+	private void removeSelectedQuestions(ActionEvent e) {
+		// Go through the list of all the check boxes associated with the questions
+		for(int i = 0; i < this.listOfQuestion.size(); i++) {
+			// if the checkbox was selected
+			if(this.listOfQuestion.get(i).isSelected()) {
+				// remove the question associated to the checkbox
+				this.currentBank.removeQuestion(this.listOfQuestion.get(i).getUserData().toString());
+			}
+		}
+		this.updateFile();
+		this.displayQuestionsToRemove(e);
+	}
+	
+	private void displayQuestionsToRemove(ActionEvent e) {
+		if(removeQuestionPane.getChildren() != null) {
+			this.removeQuestionPane.getChildren().removeAll(listOfQuestion);
+		}
+		
+		ArrayList<String> questionsList = this.currentBank.getQuestionsPrompt();
+		this.listOfQuestion = new ArrayList<>();
+
+		for(int i = 0; i < questionsList.size(); i++) {
+			this.listOfQuestion.add(new CheckBox(questionsList.get(i)));
+			// set the data associated to the check box to the question prompt
+			this.listOfQuestion.get(i).setUserData(questionsList.get(i));
+
+			this.removeQuestionPane.getChildren().add(this.listOfQuestion.get(i));
+		}
+		
+		this.manageBankPane.setCenter(this.removeQuestionPane);
+	}
+	
 	private void answerQuizQuestion(ActionEvent e) {
 
 		// if the quiz is not over yet
@@ -234,11 +372,11 @@ public class MainGUI extends Application {
 			for (int i = 0; i < this.question.getChoices().size(); i++) {
 				answerSelection.get(i).setVisible(false);
 			}
-			this.promptRandomQuestion();
+			this.promptRandomQuestion(this.AskQuestionPrompt, this.answerSelection);
 			this.quizQAnswered++;
 			this.questionNumberLabel.setText("Question #" + this.quizQAnswered + "/" + this.quizLength);
 
-
+		// If this was the last question
 		} else {
 			// Check the last answer
 			if (this.question.checkAnswer(choiceGroup.getSelectedToggle().getUserData().toString())) {
@@ -250,19 +388,22 @@ public class MainGUI extends Application {
 			
 			// Display feedback
 			this.quizFeedbackLabel.setText("You got " + this.quizNumberRight + " questions right out of " + this.quizLength + ".");
+			// Save progress before exiting quiz
+			this.updateFile();
+			// End quiz
 			this.root.setCenter(quizFeedbackPane);
 		}
 	}
 
-	private void promptRandomQuestion() {
-			question = this.currentBank.getRandomQuestion();
+	private void promptRandomQuestion(Label prompt, ArrayList<RadioButton> list) {
+			this.question = this.currentBank.getRandomQuestion();
 			if( this.question != null) {
-				this.AskQuestionPrompt.setText(question.displayQuestion());
+				prompt.setText(question.displayQuestion());
 				ArrayList<String> choice = question.getChoices();
 				for (int i = 0; i < choice.size(); i++) {
-					answerSelection.get(i).setText(choice.get(i));
-					answerSelection.get(i).setUserData(choice.get(i));
-					answerSelection.get(i).setVisible(true);
+					list.get(i).setText(choice.get(i));
+					list.get(i).setUserData(choice.get(i));
+					list.get(i).setVisible(true);
 				}
 			
 			}
@@ -279,7 +420,7 @@ public class MainGUI extends Application {
 		Optional<String> result = dialog.showAndWait();
 
 		// Prompt the first question
-		this.promptRandomQuestion();
+		this.promptRandomQuestion(this.AskQuestionPrompt, this.answerSelection);
 
 		// Open the quiz pane
 		if (result.isPresent() && this.currentBank.numberOfQuestions() > 0 ) {
@@ -291,7 +432,6 @@ public class MainGUI extends Application {
 				this.quizLength = Integer.parseInt(input);
 				this.questionNumberLabel.setText("Question #" + this.quizQAnswered + "/" + this.quizLength);
 				root.setCenter(quizPane);
-				this.updateFile();
 			}
 		}
 	}

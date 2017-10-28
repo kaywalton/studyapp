@@ -109,4 +109,9 @@ public class ChoiceQuestion extends Question implements Serializable {
 			Collections.shuffle(this.choices);
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return (this.displayQuestionWithChoice() + "/nRight answer: " + this.getAnswer() ); 
+	}
 }

@@ -151,5 +151,53 @@ public class QuestionBank implements Serializable {
 		}
 		return returnValue;
 	}
+	
+	public ArrayList<String> getQuestionsPrompt(){
+		ArrayList<String> list = new ArrayList<>();
+		
+		for(Question element : this.allQuestions) {
+			list.add(element.displayQuestion());
+		}
+		
+		return list;
+	}
+	
+	/**
+	 * Get the number of question known
+	 * @return number of question known
+	 */
+	public int getKnown() {
+		int known = 0;
+		for(Question element : this.allQuestions) {
+			if(element.getKnownFlag()) {
+				known++;
+			}
+		}
+		return known;
+	}
+	
+	/**
+	 * Get the percent of question known
+	 * @return percent of question known
+	 */
+	public double getPercentKnown() {
+		double percentKnown = 0.0;
+		if(this.allQuestions.size() > 0 ) {
+			percentKnown = this.getKnown()*100/this.allQuestions.size();
+		}
+		return percentKnown;
+	}
+	
+	/**
+	 * Get a list with all the question tagued and their answers
+	 * @return
+	 */
+	public ArrayList<String> getTagued(){
+		ArrayList<String> tagued = new ArrayList<>();
+		for(Question element : this.allQuestions) {
+			tagued.add(element.toString()); 
+		}
+		return tagued;
+	}
 
 }

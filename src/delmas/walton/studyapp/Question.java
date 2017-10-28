@@ -19,6 +19,7 @@ public class Question implements Serializable {
 	private String text;
 	private String answer;
 	private int knownFlag;
+	private boolean tag;
 	/**
 	 * Default constructor
 	 * Set all the member attribute to 0 or ""
@@ -28,6 +29,7 @@ public class Question implements Serializable {
 		this.text = "";
 		this.answer = "";
 		this.knownFlag = 0;
+		this.tag = false;
 	}
 	
 	/**
@@ -39,6 +41,19 @@ public class Question implements Serializable {
 		this.text = question;
 		this.answer = newAnswer;
 		this.knownFlag = 0;
+		this.tag = false;
+	}
+	
+	/**
+	 * Set the tag flag
+	 * @param tagValue new tag value
+	 */
+	public void tagued(boolean tagValue) {
+		this.tag = tagValue;
+	}
+	
+	public boolean isTagued() {
+		return this.tag;
 	}
 	
 	/**
@@ -72,7 +87,7 @@ public class Question implements Serializable {
 		
 		// Update the knownFlag
 		if (check) {this.knownFlag ++;}
-		else {this.knownFlag --;}
+		else if (this.knownFlag > 1) {this.knownFlag --;}
 		
 		// Provide feedback
 		return check;
@@ -118,5 +133,10 @@ public class Question implements Serializable {
 	 */
 	public String getAnswer(){
 		return this.answer;
+	}
+	
+	@Override
+	public String toString() {
+		return (this.text + "/n" + "Right answer: " + this.answer); 
 	}
 }
