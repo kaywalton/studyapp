@@ -30,6 +30,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -40,6 +41,7 @@ public class MainGUI extends Application {
 	static final String ERROR_FILE_CORRUPTED = "This file could not be open";
 
 	// Instance variables
+	private File selectedDirectory;
 	private QuestionBank currentBank;
 	private Label mainTitle;
 	private Label welcomeString;
@@ -283,7 +285,7 @@ public class MainGUI extends Application {
 			result = alert.showAndWait();
 			// If the user wants to tag the question
 			if(result.get() == tagBtn) {
-				this.tagQuestion();
+				this.question.tagged(true);
 			}
 		} else {
 			// Display the right answer
@@ -295,7 +297,7 @@ public class MainGUI extends Application {
 			result = alert.showAndWait();
 			// If the user wants to tag the question
 			if(result.get() == tagBtn) {
-				this.tagQuestion();
+				this.question.tagged(true);
 			}
 		}
 		// hides the answers
@@ -309,10 +311,6 @@ public class MainGUI extends Application {
 		this.updateFile();
 	}
 
-	private void tagQuestion() {
-		
-	}
-	
 	private void startReview(ActionEvent e) {
 		
 		if (this.currentBank.numberOfQuestions() > 0 ) {
@@ -445,11 +443,17 @@ public class MainGUI extends Application {
 		Optional<String> result = dialog.showAndWait();
 		if (result.isPresent()) {
 			// Try to load the bank
-			String fileName = result.get() + ".dat";
-			File file = new File(fileName);
+			String fileName = "/" + result.get() + ".studyBuddy";
 
+
+			// Ask for a directory where to store the file
+			DirectoryChooser chooser = new DirectoryChooser();
+			chooser.setTitle("Location of the new bank");
+			this.selectedDirectory = chooser.showDialog(primaryStage);
+			String path = this.selectedDirectory.getPath() + fileName;
+			this.selectedDirectory = new File(path);
 			// Check if the bank already exists
-			if (file.exists()) {
+			if (this.selectedDirectory.exists()) {
 				// Display an error message on the welcome pane
 				this.error_bankAlredyExists.setText(MainGUI.ERROR_BANK_ALREADY_EXISTS);
 			} else {
@@ -459,15 +463,16 @@ public class MainGUI extends Application {
 				// display the new menu
 				root.setCenter(manageBankPane);
 				// Create the file
-				this.updateFile();
-			}
+				this.updateFile();		
+			}		
 		}
 	}
 
 	private void loadBank(ActionEvent e) {
 		// Display a file chooser and loads the file
+		this.selectedDirectory = fileChooser.showOpenDialog(primaryStage);
 		// If the file was properly loaded
-		if (this.loadFile(fileChooser.showOpenDialog(primaryStage))) {
+		if (this.loadFile()) {
 			// Change the Pane
 			this.bankTitle.setText(this.currentBank.getName());
 			root.setCenter(mainMenuPane);
@@ -488,7 +493,7 @@ public class MainGUI extends Application {
 	private void updateFile() {
 		try {
 			// Save the file to disk
-			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(this.currentBank.getName() + ".dat"));
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(this.selectedDirectory));
 			out.writeObject(this.currentBank);
 			out.close();
 		} catch (IOException e) {
@@ -508,11 +513,11 @@ public class MainGUI extends Application {
 	 * 
 	 * @return true if the bank was properly loaded, false otherwise
 	 */
-	private boolean loadFile(File file) {
+	private boolean loadFile() {
 		boolean flag = false;
 
-		if (file != null && file.exists()) {
-			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
+		if (this.selectedDirectory != null && this.selectedDirectory.exists()) {
+			try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(this.selectedDirectory))) {
 				// Load bank of question
 				this.currentBank = (QuestionBank) in.readObject();
 				// Update return value
@@ -540,7 +545,7 @@ public class MainGUI extends Application {
 	 *            check box indicating if the question is shufflable.
 	 */
 	private void addQuestionToBank(TextField questionPromptField, ArrayList<TextField> answerFields,
-			ArrayList<RadioButton> rightAnswerBox, CheckBox isShuffleable) {
+		ArrayList<RadioButton> rightAnswerBox, CheckBox isShuffleable) {
 		ChoiceQuestion question = null;
 
 		// Create the question

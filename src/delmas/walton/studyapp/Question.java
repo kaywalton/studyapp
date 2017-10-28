@@ -48,11 +48,11 @@ public class Question implements Serializable {
 	 * Set the tag flag
 	 * @param tagValue new tag value
 	 */
-	public void tagued(boolean tagValue) {
+	public void tagged(boolean tagValue) {
 		this.tag = tagValue;
 	}
 	
-	public boolean isTagued() {
+	public boolean isTagged() {
 		return this.tag;
 	}
 	

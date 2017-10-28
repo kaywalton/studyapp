@@ -189,10 +189,10 @@ public class QuestionBank implements Serializable {
 	}
 	
 	/**
-	 * Get a list with all the question tagued and their answers
+	 * Get a list with all the question tagged and their answers
 	 * @return
 	 */
-	public ArrayList<String> getTagued(){
+	public ArrayList<String> getTagged(){
 		ArrayList<String> tagued = new ArrayList<>();
 		for(Question element : this.allQuestions) {
 			tagued.add(element.toString()); 
