@@ -7,6 +7,7 @@ import java.io.Serializable;
  * @author Isabelle Delmas
  * Created on: 09-20-2017
  * Edited on: 09-21-2017			by Isabelle Delmas			Reason : Implemented content of member functions
+ * Edited on: 10-27-2017			by Isabelle Delmas			Reason: added imagePath and tag options
  *
  */
 public class Question implements Serializable {
@@ -20,6 +21,8 @@ public class Question implements Serializable {
 	private String answer;
 	private int knownFlag;
 	private boolean tag;
+	private String imagePath;
+	
 	/**
 	 * Default constructor
 	 * Set all the member attribute to 0 or ""
@@ -30,6 +33,7 @@ public class Question implements Serializable {
 		this.answer = "";
 		this.knownFlag = 0;
 		this.tag = false;
+		this.imagePath = "";
 	}
 	
 	/**
@@ -42,6 +46,23 @@ public class Question implements Serializable {
 		this.answer = newAnswer;
 		this.knownFlag = 0;
 		this.tag = false;
+		this.imagePath = "";
+	}
+	
+	/**
+	 * Set the path where the image to display is stored
+	 * @param newPath path to the image
+	 */
+	public void setImagePath(String newPath) {
+		this.imagePath = newPath;
+	}
+	
+	/**
+	 * Get the path where the image to display is stored, return "" if no image is stored
+	 * @return path to the image or "" if no image
+	 */
+	public String getImagePath() {
+		return this.imagePath;
 	}
 	
 	/**

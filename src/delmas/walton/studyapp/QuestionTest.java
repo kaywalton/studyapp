@@ -18,6 +18,15 @@ public class QuestionTest {
 		// Check if answer is case sensitive
 		Assert.assertTrue(q1.checkAnswer("HAN SOLO"));
 		
+		// Check the Image path accessor and mutator
+		Assert.assertEquals("",  q1.getImagePath());
+		q1.setImagePath("testPath");
+		Assert.assertEquals(q1.getImagePath(), "testPath");
+		// Check the tag flag
+		Assert.assertFalse(q1.isTagged());
+		q1.tagged(true);
+		Assert.assertTrue(q1.isTagged());
+		
 		
 		// Create a question using default constructor
 		Question q2 = new Question("Who shot first? ", "Han Solo");

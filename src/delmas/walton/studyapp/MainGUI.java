@@ -7,6 +7,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -27,6 +32,8 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -39,6 +46,10 @@ public class MainGUI extends Application {
 	static final String ERROR_BANK_ALREADY_EXISTS = "This bank already exists. Try to load it instead of creating it.";
 	static final String ERROR_FILE_NOT_SAVED = "Your file could not be updated; your work will not be saved.";
 	static final String ERROR_FILE_CORRUPTED = "This file could not be open";
+	static final int SCREEN_HEIGHT = 800;
+	static final int SCREEN_WIDTH = 1500;
+	static final int IMAGE_MAX_HEIGHT = 500;
+	static final int IMAGE_MAX_WIDTH = 1400;
 
 	// Instance variables
 	private File selectedDirectory;
@@ -72,6 +83,10 @@ public class MainGUI extends Application {
 	private Label reviewAskQuestionPrompt;
 	private ArrayList<RadioButton> reviewChoiceSelection;
 	final private ToggleGroup reviewChoiceGroup = new ToggleGroup();
+	private CheckBox addImageBox;
+	private File imageFile;
+	private ImageView reviewImageView;
+	private ImageView quizImageView;
 	
 
 	@Override
@@ -146,6 +161,8 @@ public class MainGUI extends Application {
 		}
 		CheckBox isShuffleable = new CheckBox("Can be shuffled");
 		Button validateNewQuestionBtn = new Button("Add question");
+		Button addImageBtn = new Button("Choose image");
+		this.addImageBox = new CheckBox("include image");
 		addQuestionPane.add(questionPrompt, 0, 0);
 		addQuestionPane.add(questionPromptField, 1, 0, 3, 1);
 		for (int i = 0; i < MAX_ANSWERS; i++) {
@@ -154,7 +171,9 @@ public class MainGUI extends Application {
 			addQuestionPane.add(rightAnswerBox.get(i), 4, i + 1);
 		}
 		addQuestionPane.add(isShuffleable, 0, 9);
-		addQuestionPane.add(validateNewQuestionBtn, 4, 10);
+		addQuestionPane.add(addImageBtn,  1,  10);
+		addQuestionPane.add(this.addImageBox, 2, 10);
+		addQuestionPane.add(validateNewQuestionBtn, 4, 11);
 
 		// Create the quiz pane
 		this.quizQAnswered = 0;
@@ -167,8 +186,12 @@ public class MainGUI extends Application {
 		this.question = null;
 		Button quizNextQuestionBtn = new Button("Next");
 		this.answerSelection = new ArrayList<RadioButton>();
-		quizPane.getChildren().addAll(title, this.questionNumberLabel, this.AskQuestionPrompt);
-
+		this.quizImageView = new ImageView();
+		this.quizImageView.setFitWidth(MainGUI.IMAGE_MAX_WIDTH);
+		this.quizImageView.setFitHeight(MainGUI.IMAGE_MAX_HEIGHT);
+		this.quizImageView.setPreserveRatio(true);
+		quizPane.getChildren().addAll(title, this.questionNumberLabel, this.AskQuestionPrompt, this.quizImageView);
+		this.quizImageView.setPreserveRatio(true);
 		for (int i = 0; i < MAX_ANSWERS; i++) {
 			answerSelection.add(new RadioButton());
 			answerSelection.get(i).setToggleGroup(choiceGroup);
@@ -185,12 +208,16 @@ public class MainGUI extends Application {
 		Button reviewEndBtn = new Button("End Review");
 		this.reviewAskQuestionPrompt = new Label();
 		this.reviewChoiceSelection = new ArrayList<RadioButton>();
+		this.reviewImageView = new ImageView();
+		this.reviewImageView.setFitWidth(MainGUI.IMAGE_MAX_WIDTH);
+		this.reviewImageView.setFitHeight(MainGUI.IMAGE_MAX_HEIGHT);
+		this.reviewImageView.setPreserveRatio(true);
 		for(int i = 0; i < MAX_ANSWERS; i++) {
 			reviewChoiceSelection.add(new RadioButton());
 			reviewChoiceSelection.get(i).setToggleGroup(this.reviewChoiceGroup);
 			reviewChoiceSelection.get(i).setVisible(false);
 		}
-		this.reviewPane.getChildren().addAll(reviewTitle,this.reviewQuestionNumer, this.reviewAskQuestionPrompt);
+		this.reviewPane.getChildren().addAll(reviewTitle,this.reviewQuestionNumer, this.reviewAskQuestionPrompt, this.reviewImageView);
 		this.reviewPane.getChildren().addAll(reviewChoiceSelection);
 		this.reviewPane.getChildren().addAll(reviewNextQuestionBtn, reviewEndBtn);
 		
@@ -215,6 +242,12 @@ public class MainGUI extends Application {
 		root.setCenter(welcomePane);
 
 		// Listen for button clicks
+		// When the add image button is pressed
+		addImageBtn.setOnAction((ActionEvent e) -> {
+			this.fileChooser.setTitle("Chose an image file");
+			this.imageFile = this.fileChooser.showOpenDialog(primaryStage);
+			this.addImageBox.setSelected(true);
+		});
 		// When the feedback button is pressed
 		feedbackBtn.setOnAction(this::promptGeneralFeedback);
 		//When the answer review question btn is pressed
@@ -255,7 +288,7 @@ public class MainGUI extends Application {
 		});
 		
 		// Display all
-		primaryStage.setScene(new Scene(root, 1000, 600));
+		primaryStage.setScene(new Scene(root, MainGUI.SCREEN_WIDTH, MainGUI.SCREEN_HEIGHT));
 		primaryStage.show();
 
 	}
@@ -303,9 +336,13 @@ public class MainGUI extends Application {
 		// hides the answers
 		for (int i = 0; i < this.question.getChoices().size(); i++) {
 			reviewChoiceSelection.get(i).setVisible(false);
+			reviewChoiceSelection.get(i).setSelected(false);
 		}
+		// Remove the image
+		reviewImageView.setImage(null);
+		
 		// Display the next question
-		this.promptRandomQuestion(this.reviewAskQuestionPrompt, this.reviewChoiceSelection);
+		this.promptRandomQuestion(this.reviewAskQuestionPrompt, this.reviewChoiceSelection, this.reviewImageView);
 		this.quizQAnswered++;
 		this.reviewQuestionNumer.setText("Question #" + this.quizQAnswered);
 		this.updateFile();
@@ -316,7 +353,7 @@ public class MainGUI extends Application {
 		if (this.currentBank.numberOfQuestions() > 0 ) {
 			// Try to load the bank
 				this.quizQAnswered = 1;
-				this.promptRandomQuestion(this.reviewAskQuestionPrompt, this.reviewChoiceSelection);
+				this.promptRandomQuestion(this.reviewAskQuestionPrompt, this.reviewChoiceSelection, this.reviewImageView);
 				this.reviewQuestionNumer.setText("Question #" + this.quizQAnswered);
 				this.root.setCenter(this.reviewPane);
 		}
@@ -367,10 +404,15 @@ public class MainGUI extends Application {
 			if (this.question.checkAnswer(choiceGroup.getSelectedToggle().getUserData().toString())) {
 				this.quizNumberRight++;
 			}
+			
+			// Reset the question fields
 			for (int i = 0; i < this.question.getChoices().size(); i++) {
 				answerSelection.get(i).setVisible(false);
+				answerSelection.get(i).setSelected(false);
 			}
-			this.promptRandomQuestion(this.AskQuestionPrompt, this.answerSelection);
+			
+			// Ask a new question
+			this.promptRandomQuestion(this.AskQuestionPrompt, this.answerSelection, this.quizImageView);
 			this.quizQAnswered++;
 			this.questionNumberLabel.setText("Question #" + this.quizQAnswered + "/" + this.quizLength);
 
@@ -380,8 +422,10 @@ public class MainGUI extends Application {
 			if (this.question.checkAnswer(choiceGroup.getSelectedToggle().getUserData().toString())) {
 				this.quizNumberRight++;
 			}
+			// Hides the section boxes
 			for (int i = 0; i < this.question.getChoices().size(); i++) {
 				answerSelection.get(i).setVisible(false);
+				answerSelection.get(i).setSelected(false);
 			}
 			
 			// Display feedback
@@ -393,9 +437,36 @@ public class MainGUI extends Application {
 		}
 	}
 
-	private void promptRandomQuestion(Label prompt, ArrayList<RadioButton> list) {
+	private void promptRandomQuestion(Label prompt, ArrayList<RadioButton> list, ImageView image) {
 			this.question = this.currentBank.getRandomQuestion();
+			File temp = new File(question.getImagePath());
+			Image tempI = null;
+			
 			if( this.question != null) {
+				// Make sure there is an image associated with the question before trying to display it
+				if(this.question.getImagePath().equals("") == false) {
+					try {
+						tempI = new Image(temp.toURI().toURL().toExternalForm());
+						image.setImage(tempI);
+					} catch (MalformedURLException e) {
+						this.promptErrorDisplayImage();
+					}
+					// Adjust the size of the image while keeping the w/h ratio the same
+					image.setVisible(true);
+					image.setPreserveRatio(false);
+					image.setFitHeight(tempI.getHeight());
+					image.setFitWidth(tempI.getWidth());
+					if(image.getFitHeight() > MainGUI.IMAGE_MAX_HEIGHT) {
+						image.setPreserveRatio(true);
+						image.setFitHeight(MainGUI.IMAGE_MAX_HEIGHT);
+					}
+				} else {
+					// If there is no image, reduces the size of the image view and set it to non visible
+					image.setFitHeight(1);
+					image.setFitWidth(1);
+					image.setVisible(false);
+				}
+				// Display the other elements
 				prompt.setText(question.displayQuestion());
 				ArrayList<String> choice = question.getChoices();
 				for (int i = 0; i < choice.size(); i++) {
@@ -403,7 +474,6 @@ public class MainGUI extends Application {
 					list.get(i).setUserData(choice.get(i));
 					list.get(i).setVisible(true);
 				}
-			
 			}
 			
 
@@ -418,7 +488,7 @@ public class MainGUI extends Application {
 		Optional<String> result = dialog.showAndWait();
 
 		// Prompt the first question
-		this.promptRandomQuestion(this.AskQuestionPrompt, this.answerSelection);
+		this.promptRandomQuestion(this.AskQuestionPrompt, this.answerSelection, this.quizImageView);
 
 		// Open the quiz pane
 		if (result.isPresent() && this.currentBank.numberOfQuestions() > 0 ) {
@@ -483,7 +553,12 @@ public class MainGUI extends Application {
 	}
 
 	public static void main(String[] args) {
-		launch(args);
+		try {
+			launch(args);
+		} catch(Exception e) {
+			System.out.println(e.fillInStackTrace());
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -532,6 +607,21 @@ public class MainGUI extends Application {
 		return flag;
 	}
 
+	private void promptErrorDisplayImage() {
+		Alert alert = new Alert(AlertType.WARNING);
+		alert.setTitle("Warning");
+		alert.setHeaderText("Missing Component");
+		alert.setContentText("the image located at:\n" + question.getImagePath() + "\nwas not found.");
+		alert.showAndWait();
+	}
+	
+	private void promptErrorCopyImage() {
+		Alert alert = new Alert(AlertType.WARNING);
+		alert.setTitle("Warning");
+		alert.setHeaderText("Could not save data");
+		alert.setContentText("Enable to copy the image.");
+		alert.showAndWait();
+	}
 	/**
 	 * Add a question to this.currentBank and clear all the fields
 	 * 
@@ -547,6 +637,7 @@ public class MainGUI extends Application {
 	private void addQuestionToBank(TextField questionPromptField, ArrayList<TextField> answerFields,
 		ArrayList<RadioButton> rightAnswerBox, CheckBox isShuffleable) {
 		ChoiceQuestion question = null;
+		String imageFileName = "";
 
 		// Create the question
 		if (questionPromptField.getText() != null && !questionPromptField.getText().equals("")) {
@@ -557,6 +648,26 @@ public class MainGUI extends Application {
 				question.addChoice(answerFields.get(i).getText(), rightAnswerBox.get(i).isSelected());
 			}
 		}
+		
+		// If the user chose to add an image
+		if(this.imageFile != null && this.addImageBox.isSelected()) {
+			// Copy the image in the same directory as the bank
+			try{
+				final Path path1 = Paths.get(this.imageFile.getPath());
+				final Path path2 = Paths.get(this.selectedDirectory.getParent() +"/" + this.imageFile.getName());	
+				Files.copy(path1, path2);
+			} catch (InvalidPathException e) {
+				this.promptErrorCopyImage();
+				e.printStackTrace();
+			} catch (IOException e) {
+				this.promptErrorCopyImage();
+				e.printStackTrace();
+			}
+			imageFileName = this.selectedDirectory.getParent() +"/" + this.imageFile.getName();
+		}
+		// Add the path to the question, or "" if no image
+		question.setImagePath(imageFileName);
+		
 		// Add it to the bank
 		if (question != null) {
 			// add the question to the bank
@@ -568,6 +679,7 @@ public class MainGUI extends Application {
 		// Clear fields
 		questionPromptField.clear();
 		isShuffleable.setSelected(false);
+		this.addImageBox.setSelected(false);
 		for (int i = 0; i < rightAnswerBox.size(); i++) {
 			answerFields.get(i).clear();
 			rightAnswerBox.get(i).setSelected(false);
