@@ -209,5 +209,16 @@ public class QuestionBank implements Serializable {
 			this.allQuestions.get(i).tagged(false);
 		}
 	}
+	
+	public ArrayList<String> getTaggedQuestionsWithAnswers(){
+		ArrayList<String> list = new ArrayList<>();
+		for(Question element : this.allQuestions) {
+			if(element.isTagged()) {
+				list.add(element.toString());
+			}
+		}
+		
+		return list;
+	}
 
 }

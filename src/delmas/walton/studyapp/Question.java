@@ -51,6 +51,7 @@ public class Question implements Serializable {
 	
 	/**
 	 * Set the path where the image to display is stored
+	 * USE RELATIVE ADDRESS FROM THE ASSOCITATED .STUDDUBUDY FILE
 	 * @param newPath path to the image
 	 */
 	public void setImagePath(String newPath) {

@@ -310,8 +310,16 @@ public class MainGUI extends Application {
 	
 	private void displayTaggedQuestions(ActionEvent e) {
 		if (this.taggedPane.getChildren() != null) {
-			this.taggedPane.getChildren().removeAll(listOfQuestion);
+			System.out.println(this.taggedPane.getChildren().removeAll(listOfTaggedQuestion));
 		}
+		
+		ArrayList<String> questionList = this.currentBank.getTaggedQuestionsWithAnswers();
+		for(int i = 0; i < questionList.size(); i++) {
+			this.listOfTaggedQuestion.add(new CheckBox(questionList.get(i)));
+			this.listOfTaggedQuestion.get(i).setUserData(questionList.get(i));
+		}
+		this.taggedPane.getChildren().addAll(this.listOfTaggedQuestion);
+		this.manageBankPane.setCenter(this.taggedPane);
 	}
 	
 	private void resetProgress(ActionEvent e) {
@@ -417,6 +425,7 @@ public class MainGUI extends Application {
 	private void displayQuestionsToRemove(ActionEvent e) {
 		if(removeQuestionPane.getChildren() != null) {
 			this.removeQuestionPane.getChildren().removeAll(listOfQuestion);
+			//listOfQuestion.clear();
 		}
 		
 		ArrayList<String> questionsList = this.currentBank.getQuestionsPrompt();
@@ -700,7 +709,7 @@ public class MainGUI extends Application {
 				this.promptErrorCopyImage();
 				e.printStackTrace();
 			}
-			imageFileName = this.selectedDirectory.getParent() +"/" + this.imageFile.getName();
+			imageFileName = this.imageFile.getName();
 		}
 		// Add the path to the question, or "" if no image
 		question.setImagePath(imageFileName);

@@ -112,6 +112,6 @@ public class ChoiceQuestion extends Question implements Serializable {
 	
 	@Override
 	public String toString() {
-		return (this.displayQuestionWithChoice() + "/nRight answer: " + this.getAnswer() ); 
+		return (this.displayQuestionWithChoice() + "Right answer: " + this.getAnswer() ); 
 	}
 }
