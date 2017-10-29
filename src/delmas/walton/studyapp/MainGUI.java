@@ -87,6 +87,8 @@ public class MainGUI extends Application {
 	private File imageFile;
 	private ImageView reviewImageView;
 	private ImageView quizImageView;
+	private VBox taggedPane;
+	private ArrayList<CheckBox> listOfTaggedQuestion = new ArrayList<>();
 	
 
 	@Override
@@ -123,10 +125,12 @@ public class MainGUI extends Application {
 		this.bankTitle = new Label();
 		this.manageBankPane = new BorderPane();
 		VBox leftMenu = new VBox();
-		Button addQuestionbtn = new Button("Add a question");
-		Button removeQuestionbtn = new Button("Remove a question");
-		Button backToMMbtn = new Button("Back to main menu");
-		leftMenu.getChildren().addAll(backToMMbtn, addQuestionbtn, removeQuestionbtn);
+		final Button addQuestionbtn = new Button("Add a question");
+		final Button removeQuestionbtn = new Button("Remove a question");
+		final Button backToMMbtn = new Button("Back to main menu");
+		final Button resetProgressBtn = new Button("Reset Progress");
+		final Button displayTaggedQuestionsBtn = new Button("Tagged Questions");
+		leftMenu.getChildren().addAll(backToMMbtn, addQuestionbtn, removeQuestionbtn, resetProgressBtn, displayTaggedQuestionsBtn);
 		leftMenu.setSpacing(10);
 		leftMenu.setAlignment(Pos.CENTER);
 		manageBankPane.setLeft(leftMenu);
@@ -137,7 +141,7 @@ public class MainGUI extends Application {
 		this.mainMenuPane = new VBox();
 		Button startQuizBtn = new Button("Start Quiz");
 		Button startReviewBtn = new Button("Start Review");
-		Button manageBankBtn = new Button("Modify existing bank of questions");
+		Button manageBankBtn = new Button("Manage Questions and Progress");
 		Button feedbackBtn = new Button("Feedback");
 		mainMenuPane.getChildren().addAll(this.bankTitle, startQuizBtn, startReviewBtn, manageBankBtn, feedbackBtn);
 		mainMenuPane.setSpacing(15);
@@ -212,6 +216,7 @@ public class MainGUI extends Application {
 		this.reviewImageView.setFitWidth(MainGUI.IMAGE_MAX_WIDTH);
 		this.reviewImageView.setFitHeight(MainGUI.IMAGE_MAX_HEIGHT);
 		this.reviewImageView.setPreserveRatio(true);
+		
 		for(int i = 0; i < MAX_ANSWERS; i++) {
 			reviewChoiceSelection.add(new RadioButton());
 			reviewChoiceSelection.get(i).setToggleGroup(this.reviewChoiceGroup);
@@ -231,6 +236,10 @@ public class MainGUI extends Application {
 		final Button removeSelectedQuestionsBtn = new Button("Remove Selected Questions");
 		this.removeQuestionPane.getChildren().add(removeSelectedQuestionsBtn);
 		
+		// Create the tagged question pane
+		this.taggedPane = new VBox();
+		final Button removeSelectedTaggedQuestionsBtn = new Button("Remove Selected Questions");
+		this.taggedPane.getChildren().add(removeSelectedTaggedQuestionsBtn);
 
 		
 		// Create file opener and other utilities
@@ -242,6 +251,12 @@ public class MainGUI extends Application {
 		root.setCenter(welcomePane);
 
 		// Listen for button clicks
+		// When the display tagged question is pressed
+		displayTaggedQuestionsBtn.setOnAction(this::displayTaggedQuestions);
+		// When the remove selected tagged question is pressed
+		removeSelectedTaggedQuestionsBtn.setOnAction(this::removeSelectedQuestions);
+		// When the reset progress button is pressed
+		resetProgressBtn.setOnAction(this::resetProgress);
 		// When the add image button is pressed
 		addImageBtn.setOnAction((ActionEvent e) -> {
 			this.fileChooser.setTitle("Chose an image file");
@@ -291,6 +306,28 @@ public class MainGUI extends Application {
 		primaryStage.setScene(new Scene(root, MainGUI.SCREEN_WIDTH, MainGUI.SCREEN_HEIGHT));
 		primaryStage.show();
 
+	}
+	
+	private void displayTaggedQuestions(ActionEvent e) {
+		if (this.taggedPane.getChildren() != null) {
+			this.taggedPane.getChildren().removeAll(listOfQuestion);
+		}
+	}
+	
+	private void resetProgress(ActionEvent e) {
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Progress");
+		alert.setHeaderText("You are about to delete your progress.");
+		alert.setContentText("This irreversible action will set all the questions\nto unknown and remove all the tagged questions.");
+		ButtonType cancelBtn = new ButtonType("Cancel");
+		ButtonType continuBtn = new ButtonType("Delete Progress");
+		alert.getButtonTypes().setAll(cancelBtn, continuBtn);
+		Optional<ButtonType> result = alert.showAndWait();
+		// If the user wants to tag the question
+		if(result.get() == continuBtn) {
+			this.currentBank.resetAllFlags();
+		}
+		this.updateFile();
 	}
 	
 	private void promptGeneralFeedback(ActionEvent e) {
@@ -508,7 +545,7 @@ public class MainGUI extends Application {
 		// Ask for the name of the file
 		TextInputDialog dialog = new TextInputDialog("");
 		dialog.setTitle("Name your bank of question");
-		dialog.setHeaderText("Name your new bank of question");
+		dialog.setHeaderText("Name your new bank of question.\nNext, you will be asked to select a folder to save your data.\nWe recommande that you save your data in a SEPARATE FOLDER.");
 		dialog.setContentText("Name: ");
 		Optional<String> result = dialog.showAndWait();
 		if (result.isPresent()) {

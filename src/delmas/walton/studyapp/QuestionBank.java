@@ -199,5 +199,15 @@ public class QuestionBank implements Serializable {
 		}
 		return tagued;
 	}
+	
+	/**
+	 * Sets the tag flag to false and the know flag to false for all the questions in the bank
+	 */
+	public void resetAllFlags() {
+		for(int i = 0; i < this.allQuestions.size(); i++) {
+			this.allQuestions.get(i).resetKnownFlag();
+			this.allQuestions.get(i).tagged(false);
+		}
+	}
 
 }
