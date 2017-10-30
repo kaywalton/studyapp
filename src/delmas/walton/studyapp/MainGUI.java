@@ -89,6 +89,8 @@ public class MainGUI extends Application {
 	private ImageView quizImageView;
 	private VBox taggedPane;
 	private ArrayList<CheckBox> listOfTaggedQuestion = new ArrayList<>();
+	private Button removeSelectedTaggedQuestionsBtn;
+	private Button removeSelectedQuestionsBtn;
 	
 
 	@Override
@@ -233,12 +235,12 @@ public class MainGUI extends Application {
 		
 		// Create the remove question pane;
 		this.removeQuestionPane = new VBox();
-		final Button removeSelectedQuestionsBtn = new Button("Remove Selected Questions");
+		this.removeSelectedQuestionsBtn = new Button("Remove Selected Questions");
 		this.removeQuestionPane.getChildren().add(removeSelectedQuestionsBtn);
 		
 		// Create the tagged question pane
 		this.taggedPane = new VBox();
-		final Button removeSelectedTaggedQuestionsBtn = new Button("Remove Selected Questions");
+		this.removeSelectedTaggedQuestionsBtn = new Button("Remove Selected Questions");
 		this.taggedPane.getChildren().add(removeSelectedTaggedQuestionsBtn);
 
 		
@@ -251,6 +253,8 @@ public class MainGUI extends Application {
 		root.setCenter(welcomePane);
 
 		// Listen for button clicks
+		// When the removed selected tagged question button is pressed
+		removeSelectedTaggedQuestionsBtn.setOnAction(this::removeSelectedTaggedQuestions);
 		// When the display tagged question is pressed
 		displayTaggedQuestionsBtn.setOnAction(this::displayTaggedQuestions);
 		// When the remove selected tagged question is pressed
@@ -310,9 +314,10 @@ public class MainGUI extends Application {
 	
 	private void displayTaggedQuestions(ActionEvent e) {
 		if (this.taggedPane.getChildren() != null) {
-			System.out.println(this.taggedPane.getChildren().removeAll(listOfTaggedQuestion));
+			this.taggedPane.getChildren().clear();
+			this.taggedPane.getChildren().add(this.removeSelectedTaggedQuestionsBtn);
 		}
-		
+		this.listOfTaggedQuestion.clear();
 		ArrayList<String> questionList = this.currentBank.getTaggedQuestionsWithAnswers();
 		for(int i = 0; i < questionList.size(); i++) {
 			this.listOfTaggedQuestion.add(new CheckBox(questionList.get(i)));
@@ -320,6 +325,19 @@ public class MainGUI extends Application {
 		}
 		this.taggedPane.getChildren().addAll(this.listOfTaggedQuestion);
 		this.manageBankPane.setCenter(this.taggedPane);
+	}
+	
+	private void removeSelectedTaggedQuestions(ActionEvent e) {
+		// Go through the list of all the check boxes associated with the questions
+		for(int i = 0; i < this.listOfTaggedQuestion.size(); i++) {
+			// if the checkbox was selected
+			if(this.listOfTaggedQuestion.get(i).isSelected()) {
+				// remove the question associated to the checkbox
+				this.currentBank.untagQuestion(this.listOfTaggedQuestion.get(i).getUserData().toString());
+			}
+		}
+		this.updateFile();
+		this.displayTaggedQuestions(e);
 	}
 	
 	private void resetProgress(ActionEvent e) {
@@ -423,13 +441,13 @@ public class MainGUI extends Application {
 	}
 	
 	private void displayQuestionsToRemove(ActionEvent e) {
-		if(removeQuestionPane.getChildren() != null) {
-			this.removeQuestionPane.getChildren().removeAll(listOfQuestion);
-			//listOfQuestion.clear();
+		if(this.removeQuestionPane.getChildren() != null) {
+			this.removeQuestionPane.getChildren().clear();
+			this.removeQuestionPane.getChildren().add(this.removeSelectedQuestionsBtn);
 		}
 		
 		ArrayList<String> questionsList = this.currentBank.getQuestionsPrompt();
-		this.listOfQuestion = new ArrayList<>();
+		this.listOfQuestion.clear();
 
 		for(int i = 0; i < questionsList.size(); i++) {
 			this.listOfQuestion.add(new CheckBox(questionsList.get(i)));

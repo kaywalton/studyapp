@@ -220,5 +220,21 @@ public class QuestionBank implements Serializable {
 		
 		return list;
 	}
+	
+	public boolean untagQuestion(String questionPrompt) {
+		boolean returnValue = false;
+		// Go through the list of question
+		for(int i = 0; i < this.allQuestions.size(); i++) {
+			Question question = this.allQuestions.get(i);
+			// If the prompt matches
+			if (question.isTagged()) {
+				// Update return value and delete the question from the list
+				returnValue = true;
+				question.tagged(false);
+			}
+		}
+		
+		return returnValue;
+	}
 
 }
