@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -16,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -29,6 +29,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToggleGroup;
@@ -46,9 +47,9 @@ public class MainGUI extends Application {
 	static final String ERROR_BANK_ALREADY_EXISTS = "This bank already exists. Try to load it instead of creating it.";
 	static final String ERROR_FILE_NOT_SAVED = "Your file could not be updated; your work will not be saved.";
 	static final String ERROR_FILE_CORRUPTED = "This file could not be open";
-	static final int SCREEN_HEIGHT = 800;
-	static final int SCREEN_WIDTH = 1500;
-	static final int IMAGE_MAX_HEIGHT = 500;
+	static final int SCREEN_HEIGHT = 750;
+	static final int SCREEN_WIDTH = 1450;
+	static final int IMAGE_MAX_HEIGHT = 450;
 	static final int IMAGE_MAX_WIDTH = 1400;
 
 	// Instance variables
@@ -89,9 +90,21 @@ public class MainGUI extends Application {
 	private ImageView quizImageView;
 	private VBox taggedPane;
 	private ArrayList<CheckBox> listOfTaggedQuestion = new ArrayList<>();
-	private Button removeSelectedTaggedQuestionsBtn;
+	private Button untagSelectedTaggedQuestionsBtn;
 	private Button removeSelectedQuestionsBtn;
+	private ArrayList<ImageView> taggedImage = new ArrayList<>();
+	private ScrollPane scrollTagged;
 	
+	@Override
+	public void stop() {
+		if(this.currentBank != null) {
+			this.updateFile();
+		}
+		try {
+			super.stop();
+		} catch (Exception e) {
+		}
+	}
 
 	@Override
 	public void start(Stage stage) {
@@ -104,11 +117,20 @@ public class MainGUI extends Application {
 		this.root = new BorderPane();
 		MenuBar mainMenu = new MenuBar();
 		final Menu menu1 = new Menu("File");
-		final Menu menu2 = new Menu("Options");
-		final Menu menu3 = new Menu("Edit");
-		final MenuItem item1 = new MenuItem("save");
-		final MenuItem item2 = new MenuItem("delete");
-		menu1.getItems().addAll(item1, item2);
+		final Menu menu2 = new Menu("Manage Bank");
+		final Menu menu3 = new Menu("Quiz/Review");
+		final MenuItem saveAndExit = new MenuItem("Save progress and exits");
+		final MenuItem backToMain = new MenuItem("Back to main menu");
+		final MenuItem loadOtherBank = new MenuItem("Load an other bank");
+		final MenuItem createNewBank = new MenuItem("Create a new bank");
+		final MenuItem removeQuestions = new MenuItem("Remove questions");
+		final MenuItem seeTaggedQuestions = new MenuItem("See taggued questions");
+		final MenuItem addQuestions = new MenuItem("Add questions");
+		final MenuItem startQuiz = new MenuItem("Start Quiz");
+		final MenuItem startReview = new MenuItem("Start Review");
+		menu1.getItems().addAll(backToMain, loadOtherBank, createNewBank, saveAndExit);
+		menu2.getItems().addAll(removeQuestions, seeTaggedQuestions, addQuestions);
+		menu3.getItems().addAll(startQuiz, startReview);
 		mainMenu.getMenus().addAll(menu1, menu2, menu3);
 
 		// Create the welcome pane
@@ -240,8 +262,10 @@ public class MainGUI extends Application {
 		
 		// Create the tagged question pane
 		this.taggedPane = new VBox();
-		this.removeSelectedTaggedQuestionsBtn = new Button("Remove Selected Questions");
-		this.taggedPane.getChildren().add(removeSelectedTaggedQuestionsBtn);
+		this.untagSelectedTaggedQuestionsBtn = new Button("Untag Selected Questions");
+		this.taggedPane.getChildren().add(untagSelectedTaggedQuestionsBtn);
+		this.taggedPane.setSpacing(15);
+		this.scrollTagged = new ScrollPane(taggedPane);
 
 		
 		// Create file opener and other utilities
@@ -253,12 +277,52 @@ public class MainGUI extends Application {
 		root.setCenter(welcomePane);
 
 		// Listen for button clicks
+		// When the top menu bar is used
+		saveAndExit.setOnAction((ActionEvent e)->{
+			Platform.exit();
+			System.exit(0);
+		});
+		backToMain.setOnAction((ActionEvent e)->{
+			if(this.currentBank != null) {
+				this.backToMain(e);
+			}
+		});
+		loadOtherBank.setOnAction(this::loadBank);
+		createNewBank.setOnAction(this::newBank);
+		addQuestions.setOnAction((ActionEvent e) -> {
+			if(this.currentBank != null) {
+				this.manageBankPane.setCenter(addQuestionPane);
+				root.setCenter(manageBankPane);
+			}
+		});
+		seeTaggedQuestions.setOnAction((ActionEvent e) -> {
+			if(this.currentBank != null) {
+				this.manageBankPane.setCenter(this.scrollTagged);
+				root.setCenter(manageBankPane);
+				this.displayTaggedQuestions(e);
+			}
+		});
+		removeQuestions.setOnAction((ActionEvent e) -> {
+			if(this.currentBank != null) {
+				this.manageBankPane.setCenter(removeQuestionPane);
+				root.setCenter(manageBankPane);
+				this.displayQuestionsToRemove(e);
+			}
+		});
+		startQuiz.setOnAction((ActionEvent e) -> {
+			if(this.currentBank != null) {
+				this.startQuiz(e);
+			}
+		});
+		startReview.setOnAction((ActionEvent e) -> {
+			if(this.currentBank != null) {
+				this.startReview(e);
+			}
+		});
 		// When the removed selected tagged question button is pressed
-		removeSelectedTaggedQuestionsBtn.setOnAction(this::removeSelectedTaggedQuestions);
+		untagSelectedTaggedQuestionsBtn.setOnAction(this::untagSelectedQuestions);
 		// When the display tagged question is pressed
 		displayTaggedQuestionsBtn.setOnAction(this::displayTaggedQuestions);
-		// When the remove selected tagged question is pressed
-		removeSelectedTaggedQuestionsBtn.setOnAction(this::removeSelectedQuestions);
 		// When the reset progress button is pressed
 		resetProgressBtn.setOnAction(this::resetProgress);
 		// When the add image button is pressed
@@ -315,19 +379,51 @@ public class MainGUI extends Application {
 	private void displayTaggedQuestions(ActionEvent e) {
 		if (this.taggedPane.getChildren() != null) {
 			this.taggedPane.getChildren().clear();
-			this.taggedPane.getChildren().add(this.removeSelectedTaggedQuestionsBtn);
+			this.taggedPane.getChildren().add(this.untagSelectedTaggedQuestionsBtn);
 		}
 		this.listOfTaggedQuestion.clear();
 		ArrayList<String> questionList = this.currentBank.getTaggedQuestionsWithAnswers();
+		ArrayList<String> promptList = this.currentBank.getTaggedPrompts();
+		ArrayList<String> pathList  = this.currentBank.getTaggedImagePaths();
+		Image tempI = null;
 		for(int i = 0; i < questionList.size(); i++) {
 			this.listOfTaggedQuestion.add(new CheckBox(questionList.get(i)));
-			this.listOfTaggedQuestion.get(i).setUserData(questionList.get(i));
+			this.listOfTaggedQuestion.get(i).setUserData(promptList.get(i));
+			this.taggedPane.getChildren().add(this.listOfTaggedQuestion.get(i));
+			
+			//Add the image after the question if there is an image
+			// Make sure there is an image associated with the question before trying to display it
+			if(pathList.get(i).equals("") == false) {
+				try{
+					// Load the image
+					String path = this.selectedDirectory.getParent() + "/" + pathList.get(i);		// get absolute the path
+					FileInputStream fileInput = null;
+					try {
+						fileInput = new FileInputStream(path);			// Create an fileInputStrem with the image
+					} catch (FileNotFoundException er) {
+						this.promptErrorDisplayImage();
+					}
+					tempI = new Image(fileInput);						// Create the image
+					ImageView tempIV = new ImageView(tempI);
+					if(tempIV.getFitHeight() > MainGUI.IMAGE_MAX_HEIGHT) {
+						tempIV.setPreserveRatio(true);
+						tempIV.setFitHeight(MainGUI.IMAGE_MAX_HEIGHT);
+					}
+					taggedImage.add(tempIV);
+					this.taggedPane.getChildren().add(taggedImage.get(this.taggedImage.size()-1));
+				}catch(IllegalArgumentException er) {
+					this.promptErrorDisplayImage();
+				} catch(NullPointerException er) {
+					this.promptErrorDisplayImage();
+				}
+				
+			}
 		}
-		this.taggedPane.getChildren().addAll(this.listOfTaggedQuestion);
-		this.manageBankPane.setCenter(this.taggedPane);
+		//this.taggedPane.getChildren().addAll(this.listOfTaggedQuestion);
+		this.manageBankPane.setCenter(this.scrollTagged);
 	}
 	
-	private void removeSelectedTaggedQuestions(ActionEvent e) {
+	private void untagSelectedQuestions(ActionEvent e) {
 		// Go through the list of all the check boxes associated with the questions
 		for(int i = 0; i < this.listOfTaggedQuestion.size(); i++) {
 			// if the checkbox was selected
@@ -503,27 +599,38 @@ public class MainGUI extends Application {
 
 	private void promptRandomQuestion(Label prompt, ArrayList<RadioButton> list, ImageView image) {
 			this.question = this.currentBank.getRandomQuestion();
-			File temp = new File(question.getImagePath());
+			//File temp = new File(question.getImagePath());
 			Image tempI = null;
 			
 			if( this.question != null) {
 				// Make sure there is an image associated with the question before trying to display it
 				if(this.question.getImagePath().equals("") == false) {
-					try {
-						tempI = new Image(temp.toURI().toURL().toExternalForm());
-						image.setImage(tempI);
-					} catch (MalformedURLException e) {
+					try{
+						// Load the image
+						String path = this.selectedDirectory.getParent() + "/" + question.getImagePath();		// get absolute the path
+						FileInputStream fileInput = null;
+						try {
+							fileInput = new FileInputStream(path);			// Create an fileInputStrem with the image
+						} catch (FileNotFoundException e) {
+							this.promptErrorDisplayImage();
+						}
+						tempI = new Image(fileInput);						// Create the image
+						image.setImage(tempI);								// Load the image to the pane
+						// Adjust the size of the image while keeping the w/h ratio the same
+						image.setVisible(true);
+						image.setPreserveRatio(false);
+						image.setFitHeight(tempI.getHeight());
+						image.setFitWidth(tempI.getWidth());
+						if(image.getFitHeight() > MainGUI.IMAGE_MAX_HEIGHT) {
+							image.setPreserveRatio(true);
+							image.setFitHeight(MainGUI.IMAGE_MAX_HEIGHT);
+						}
+					} catch(IllegalArgumentException e) {
+						this.promptErrorDisplayImage();
+					} catch(NullPointerException e) {
 						this.promptErrorDisplayImage();
 					}
-					// Adjust the size of the image while keeping the w/h ratio the same
-					image.setVisible(true);
-					image.setPreserveRatio(false);
-					image.setFitHeight(tempI.getHeight());
-					image.setFitWidth(tempI.getWidth());
-					if(image.getFitHeight() > MainGUI.IMAGE_MAX_HEIGHT) {
-						image.setPreserveRatio(true);
-						image.setFitHeight(MainGUI.IMAGE_MAX_HEIGHT);
-					}
+					
 				} else {
 					// If there is no image, reduces the size of the image view and set it to non visible
 					image.setFitHeight(1);
@@ -675,7 +782,7 @@ public class MainGUI extends Application {
 		Alert alert = new Alert(AlertType.WARNING);
 		alert.setTitle("Warning");
 		alert.setHeaderText("Missing Component");
-		alert.setContentText("the image located at:\n" + question.getImagePath() + "\nwas not found.");
+		alert.setContentText("The image located at:\n" + question.getImagePath() + "\nwas not found.");
 		alert.showAndWait();
 	}
 	

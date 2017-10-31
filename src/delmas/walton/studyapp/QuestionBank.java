@@ -221,20 +221,55 @@ public class QuestionBank implements Serializable {
 		return list;
 	}
 	
+	
+	public void untagAllQuestions(String questionPrompt) {
+
+		// Go through the list of question
+		for(int i = 0; i < this.allQuestions.size(); i++) {
+			// If the prompt matches
+			if (this.allQuestions.get(i).isTagged()) {
+				// Update return value and delete the question from the list
+				this.allQuestions.get(i).tagged(false);
+			}
+		}
+	}
 	public boolean untagQuestion(String questionPrompt) {
 		boolean returnValue = false;
 		// Go through the list of question
 		for(int i = 0; i < this.allQuestions.size(); i++) {
-			Question question = this.allQuestions.get(i);
+			ChoiceQuestion questionToUntag = this.allQuestions.get(i);
 			// If the prompt matches
-			if (question.isTagged()) {
+			if (questionToUntag.getPrompt().equals(questionPrompt)) {
 				// Update return value and delete the question from the list
 				returnValue = true;
-				question.tagged(false);
+				questionToUntag.tagged(false);
 			}
 		}
 		
 		return returnValue;
+
+	}
+	
+	ArrayList<String> getTaggedPrompts(){
+		ArrayList<String> list = new ArrayList<>();
+		for(Question element : this.allQuestions) {
+			if(element.isTagged()) {
+				list.add(element.displayQuestion());
+			}
+		}
+		
+		return list;
+	}
+	
+	ArrayList<String> getTaggedImagePaths(){
+		ArrayList<String> list = new ArrayList<>();
+		for(Question element : this.allQuestions) {
+			if(element.isTagged()) {
+				list.add(element.getImagePath());
+			}
+		}
+		
+		return list;
 	}
 
 }
