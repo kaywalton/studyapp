@@ -38,6 +38,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -487,8 +488,8 @@ public class MainGUI extends Application {
 			alert.setTitle("Feedback");
 			alert.setHeaderText("Not quite");
 			// TODO: wrap text in alert box
-			Label feedbackAnswer = new Label ("The correct answer was:\n" + this.question.getAnswer());
-			feedbackAnswer.setWrapText(true);
+			Text feedbackAnswer = new Text ("The correct answer was:\n" + this.question.getAnswer());
+			feedbackAnswer.setWrappingWidth(350);
 			alert.getDialogPane().setContent(feedbackAnswer);
 			alert.getButtonTypes().setAll(okBtn, tagBtn);
 			
@@ -648,6 +649,7 @@ public class MainGUI extends Application {
 				ArrayList<String> choice = question.getChoices();
 				for (int i = 0; i < choice.size(); i++) {
 					list.get(i).setText(choice.get(i));
+					list.get(i).setWrapText(true);
 					list.get(i).setUserData(choice.get(i));
 					list.get(i).setVisible(true);
 				}
