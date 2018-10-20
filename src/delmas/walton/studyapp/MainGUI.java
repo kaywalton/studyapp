@@ -211,6 +211,7 @@ public class MainGUI extends Application {
 		Label title = new Label("Quiz Time!");
 		this.questionNumberLabel = new Label("Question #" + this.quizQAnswered + "/" + this.quizLength);
 		this.AskQuestionPrompt = new Label("This is the question");
+		this.AskQuestionPrompt.setWrapText(true);
 		this.question = null;
 		Button quizNextQuestionBtn = new Button("Next");
 		this.answerSelection = new ArrayList<RadioButton>();
@@ -235,6 +236,7 @@ public class MainGUI extends Application {
 		Button reviewNextQuestionBtn = new Button("Check Answer");
 		Button reviewEndBtn = new Button("End Review");
 		this.reviewAskQuestionPrompt = new Label();
+		this.reviewAskQuestionPrompt.setWrapText(true);
 		this.reviewChoiceSelection = new ArrayList<RadioButton>();
 		this.reviewImageView = new ImageView();
 		this.reviewImageView.setFitWidth(MainGUI.IMAGE_MAX_WIDTH);
@@ -484,8 +486,12 @@ public class MainGUI extends Application {
 			Alert alert = new Alert(AlertType.CONFIRMATION);
 			alert.setTitle("Feedback");
 			alert.setHeaderText("Not quite");
-			alert.setContentText("The correct answer was:\n" + this.question.getAnswer());
+			// TODO: wrap text in alert box
+			Label feedbackAnswer = new Label ("The correct answer was:\n" + this.question.getAnswer());
+			feedbackAnswer.setWrapText(true);
+			alert.getDialogPane().setContent(feedbackAnswer);
 			alert.getButtonTypes().setAll(okBtn, tagBtn);
+			
 			result = alert.showAndWait();
 			// If the user wants to tag the question
 			if(result.get() == tagBtn) {
